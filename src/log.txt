@@ -4010,3 +4010,9 @@
 2021/10/24 18:45:08 read: websocket: close 1001 (going away)
 2021/10/24 18:45:08 Connection closed:  [::1]:51026   tcp
 2021/10/24 18:45:09 Connected:  [::1]:51212   tcp
+2021/10/24 19:03:16 Not use env WS_PORT. Set default ws port: 8083
+2021/10/24 19:03:16 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/24 19:03:16 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/24 19:03:16 Server listen :8083
+2021/10/24 19:03:19 Connected:  [::1]:33930   tcp
+2021/10/24 19:03:24 Connected:  [::1]:34034   tcp
