@@ -1,0 +1,1 @@
+typedef struct {GMainLoop *loop; GstElement *element;} UserData;
