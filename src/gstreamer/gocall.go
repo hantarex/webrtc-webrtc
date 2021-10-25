@@ -96,15 +96,18 @@ func on_incoming_stream(webrtc *C.GstElement, pad *C.GstPad, user_data unsafe.Po
 	fmt.Println(new_pad_caps)
 	if new_pad_caps == nil {
 		fmt.Println("Load webrtc client")
+		fmt.Println(pad.direction)
+		fmt.Println(C.GoString(C.gst_caps_to_string(C.gst_pad_template_get_caps(C.gst_pad_get_pad_template(pad)))))
 		//C.gst_element_link(g.queue, g.rtph264depay)
-		srcpad := C.gst_element_get_request_pad(g.teeVideo, srcName)
-		//sinkpad := C.gst_element_get_static_pad(g.rtph264depay1, C.CString("sink"))
+		srcpad := C.gst_element_get_static_pad(g.queue, C.CString("src"))
+		//sinkpad := C.gst_element_get_request_pad(g.webrtc1, C.CString("sink_%u"))
 		//fmt.Println("sinkpad")
 		//fmt.Println(sinkpad)
 		reason := C.gst_pad_link(srcpad, pad)
 		if reason != C.GST_PAD_LINK_OK {
 			fmt.Println(errors.New(strconv.Itoa(int(reason))).Error())
 		}
+		fmt.Println("LINK!!!!!!!!!")
 		return
 	}
 	new_pad_struct := C.gst_caps_get_structure(new_pad_caps, 0)

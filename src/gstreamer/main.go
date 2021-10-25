@@ -195,9 +195,9 @@ func (g *GStreamer) InitGst() {
 		fmt.Println("Tee video not linked: " + err.Error())
 	}
 
-	//if err := g.teeLink(g.teeVideo, g.queue, "src_%u", "sink"); err != nil {
-	//	fmt.Println("Tee video not linked: " + err.Error())
-	//}
+	if err := g.teeLink(g.teeVideo, g.queue, "src_%u", "sink"); err != nil {
+		fmt.Println("Tee video not linked: " + err.Error())
+	}
 	//
 	//if err := g.teeLink(g.queue, g.webrtc1, "src", "sink_%u"); err != nil {
 	//	fmt.Println("Tee queue not webrtc1: " + err.Error())
