@@ -103,7 +103,7 @@
             //Create new offer
             const offer = await pc.createOffer({
 				offerToReceiveAudio: false,
-				offerToReceiveVideo: true
+				offerToReceiveVideo: true,
 			});
             //Set it
             pc.setLocalDescription(offer);

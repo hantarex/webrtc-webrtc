@@ -1,8 +1,9 @@
 #define GST_USE_UNSTABLE_API
 #include <gst/webrtc/webrtc.h>
 #include <glib.h>
+#include <gst/sdp/sdp.h>
 #include <gst/gst.h>
-#include <gst/gstbin.h>
+//#include <gst/gstbin.h>
 #include <json-glib/json-glib.h>
 #include <string.h>
 #include <types.h>
@@ -14,6 +15,10 @@ gboolean print_field (GQuark field, const GValue * value, gpointer pfx) {
   g_print ("%s  %15s: %s\n", (gchar *) pfx, g_quark_to_string (field), str);
   g_free (str);
   return TRUE;
+}
+
+void g_object_set_int_wrap(gpointer object_type, gchar *first_property_name, int three) {
+    g_object_set(object_type, first_property_name, three, NULL);
 }
 
 void print_caps (const GstCaps * caps, const gchar * pfx) {
@@ -102,6 +107,12 @@ void on_incoming_stream_wrap (GstElement * webrtc, GstPad * pad, GstElement * pi
 
 GstWebRTCRTPTransceiver *g_array_index_wrap(GArray *a,int i) {
     return  g_array_index(a, GstWebRTCRTPTransceiver*, i);
+}
+
+GArray* g_array_index_zero(GstElement *webrtc) {
+    GArray* transceivers;
+    g_signal_emit_by_name(webrtc, "get-transceivers", &transceivers);
+    return transceivers;
 }
 
 void g_object_set_fec(GstWebRTCRTPTransceiver* trans) {

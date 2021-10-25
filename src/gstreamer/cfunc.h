@@ -1,8 +1,9 @@
 #define GST_USE_UNSTABLE_API
 #include <gst/webrtc/webrtc.h>
 #include <glib.h>
+#include <gst/sdp/sdp.h>
 #include <gst/gst.h>
-#include <gst/gstbin.h>
+//#include <gst/gstbin.h>
 #include <json-glib/json-glib.h>
 #include <string.h>
 #include <types.h>
@@ -24,3 +25,5 @@ void g_object_set_wrap(gpointer object_type, gchar *first_property_name, void *t
 void g_object_set_bool_wrap(gpointer object_type, gchar *first_property_name, bool three);
 GstCaps *gst_caps_set_format();
 void sendKeyFrame(GstPad * pad);
+void g_object_set_int_wrap(gpointer object_type, gchar *first_property_name, int three);
+GArray* g_array_index_zero(GstElement *webrtc);

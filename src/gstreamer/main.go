@@ -26,8 +26,8 @@ type PassWebrtc struct {
 }
 
 type GStreamer struct {
-	webrtc, webrtc1, pipeline, avdec_h264, rtph264depay, teeVideo, videoconvert, queue, autovideosink *C.GstElement
-	gError                                                                                            *C.GError
+	webrtc1, pipeline, videotestsrc, teeVideo, nvh264enc, rtph264pay, queue, h264parse, queue1, autovideosink *C.GstElement
+	gError                                                                                                    *C.GError
 	//send_channel *C.GObject
 	bus *C.GstBus
 	//loop         *C.GMainLoop
@@ -88,6 +88,57 @@ type Message struct {
 	Key       string       `json:"key,omitempty"`
 }
 
+func (g *GStreamer) loadBus() {
+	g.bus = gst_pipeline_get_bus(unsafe.Pointer(g.pipeline))
+	go func(bus *C.GstBus) {
+		for {
+			msg := C.gst_bus_timed_pop_filtered(bus, C.GST_CLOCK_TIME_NONE,
+				C.GST_MESSAGE_STATE_CHANGED|C.GST_MESSAGE_ERROR|C.GST_MESSAGE_WARNING|C.GST_MESSAGE_EOS|C.GST_MESSAGE_STREAM_STATUS)
+			if msg != nil {
+				switch msg._type {
+				case C.GST_MESSAGE_ERROR:
+					{
+						var debug *C.gchar
+						var gError *C.GError
+
+						C.gst_message_parse_error(msg, &gError, &debug)
+						fmt.Printf("Error: %s\n", C.GoString(gError.message))
+						C.g_error_free(gError)
+						break
+					}
+
+				case C.GST_MESSAGE_STATE_CHANGED:
+					{
+						break
+					}
+				case C.GST_MESSAGE_BUFFERING:
+					{
+						break
+					}
+				case C.GST_MESSAGE_ELEMENT:
+					{
+						break
+					}
+				case C.GST_MESSAGE_STREAM_STATUS:
+					{
+						break
+
+					}
+				case C.GST_MESSAGE_STREAM_START:
+					{
+						break
+
+					}
+				default:
+					fmt.Println(msg._type)
+					break
+				}
+				C.gst_message_unref(msg)
+			}
+		}
+	}(g.bus)
+}
+
 func (g *GStreamer) InitConnection(c *websocket.Conn) {
 	g.c = c
 	log.Println("Connected: ", g.c.RemoteAddr().String(), " ", g.c.RemoteAddr().Network())
@@ -120,94 +171,42 @@ func (g *GStreamer) InitGst() {
 	//defer C.free(unsafe.Pointer(pipeStr))
 	//g.pipeline = C.gst_parse_launch(C.CString("webrtcbin bundle-policy=max-bundle stun-server=stun://stun.l.google.com:19302 name=recv recv. ! rtpvp8depay ! vp8dec ! videoconvert ! queue ! autovideosink"), &g.gError)
 	//g.pipeline = C.gst_parse_launch(C.CString("webrtcbin bundle-policy=max-bundle stun-server=stun://stun.l.google.com:19302 name=recv recv. ! rtph264depay ! avdec_h264 ! queue ! autovideosink"), &g.gError)
-	//g.pipeline = C.gst_parse_launch(C.CString("webrtcbin bundle-policy=max-bundle stun-server=stun://stun.l.google.com:19302 name=recv recv. ! rtph264depay request-keyframe=1 ! avdec_h264 ! queue ! x264enc ! flvmux ! filesink location=xyz.flv"), &g.gError)
-	pipeName := C.CString("j2c_webrtc")
-	defer C.free(unsafe.Pointer(pipeName))
-	g.pipeline = C.gst_pipeline_new(pipeName)
-	// webrtcbin
-	webrtcName := C.CString("webrtcbin")
-	defer C.free(unsafe.Pointer(webrtcName))
-	g.webrtc = C.gst_element_factory_make(webrtcName, webrtcName)
-	g_object_set(C.gpointer(g.webrtc), "stun-server", unsafe.Pointer(C.CString("stun://stun.l.google.com:19302")))
-	//g_object_set(C.gpointer(g.webrtc), "stun-server", unsafe.Pointer(C.CString("stun://stun.l.google.com:19302")))
-	// tee video
-	teeVideoName := C.CString("tee")
-	defer C.free(unsafe.Pointer(teeVideoName))
-	teeVideoNameDesc := C.CString("teeVideo")
-	defer C.free(unsafe.Pointer(teeVideoNameDesc))
-	g.teeVideo = C.gst_element_factory_make(teeVideoName, teeVideoNameDesc)
-	// rtph264depay
-	rtph264depayName := C.CString("rtph264depay")
-	defer C.free(unsafe.Pointer(rtph264depayName))
-	rtph264depayDescName := C.CString("rtph264depay")
-	defer C.free(unsafe.Pointer(rtph264depayDescName))
-	g.rtph264depay = C.gst_element_factory_make(rtph264depayName, rtph264depayDescName)
-	// h264parse
-	avdec_h264Name := C.CString("avdec_h264")
-	defer C.free(unsafe.Pointer(avdec_h264Name))
-	avdec_h264DescName := C.CString("avdec_h264")
-	defer C.free(unsafe.Pointer(avdec_h264DescName))
-	g.avdec_h264 = C.gst_element_factory_make(avdec_h264Name, avdec_h264DescName)
-	// videoconvert
-	videoconvertName := C.CString("videoconvert")
-	defer C.free(unsafe.Pointer(videoconvertName))
-	videoconvertDescName := C.CString("videoconvert")
-	defer C.free(unsafe.Pointer(videoconvertDescName))
-	g.videoconvert = C.gst_element_factory_make(videoconvertName, videoconvertDescName)
-	// autovideosink
-	autovideosinkName := C.CString("autovideosink")
-	defer C.free(unsafe.Pointer(autovideosinkName))
-	autovideosinkDescName := C.CString("autovideosink")
-	defer C.free(unsafe.Pointer(autovideosinkDescName))
-	g.autovideosink = C.gst_element_factory_make(autovideosinkName, autovideosinkDescName)
-	// queue
-	queueName := C.CString("queue2")
-	defer C.free(unsafe.Pointer(queueName))
-	g.queue = C.gst_element_factory_make(queueName, queueName)
+	g.pipeline = C.gst_parse_launch(C.CString("videotestsrc ! queue !nvh264enc ! queue ! rtph264pay ! queue ! webrtcbin stun-server=stun://stun.l.google.com:19302 name=sendrecv"), &g.gError)
 	// webrtcbin1
-	webrtcName1 := C.CString("webrtcbin")
-	defer C.free(unsafe.Pointer(webrtcName1))
-	webrtcName1Desc := C.CString("webrtcName1")
-	defer C.free(unsafe.Pointer(webrtcName1Desc))
-	g.webrtc1 = C.gst_element_factory_make(webrtcName1, webrtcName1Desc)
-	g_object_set(C.gpointer(g.webrtc1), "stun-server", unsafe.Pointer(C.CString("stun://stun.l.google.com:19302")))
-	//g_object_set(C.gpointer(g.webrtc1), "bundle-policy", unsafe.Pointer(C.CString("max-compat")))
+	g.webrtc1 = C.gst_bin_get_by_name(GST_BIN(g.pipeline), C.CString("sendrecv"))
+	//ts := C.g_array_index_zero(g.webrtc1)
+	//t := C.g_array_index_wrap(ts, 0)
+	//fmt.Println(t.direction)
+	//g_object_int(C.gpointer(g.webrtc1), "latency", 0)
+	//g_object_set_bool(C.gpointer(g.webrtc1), "async-handling", true)
 
-	C.gst_bin_add(GST_BIN(g.pipeline), g.webrtc)
-	C.gst_bin_add(GST_BIN(g.pipeline), g.rtph264depay)
-	C.gst_bin_add(GST_BIN(g.pipeline), g.avdec_h264)
-	C.gst_bin_add(GST_BIN(g.pipeline), g.videoconvert)
-	C.gst_bin_add(GST_BIN(g.pipeline), g.autovideosink)
-	C.gst_bin_add(GST_BIN(g.pipeline), g.teeVideo)
-	C.gst_bin_add(GST_BIN(g.pipeline), g.queue)
-	C.gst_bin_add(GST_BIN(g.pipeline), g.webrtc1)
+	capsStr := C.CString("application/x-rtp")
+	defer C.free(unsafe.Pointer(capsStr))
+	var caps *C.GstCaps = C.gst_caps_from_string(capsStr)
+	g_signal_emit_by_name_trans(g.webrtc1, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY, unsafe.Pointer(caps))
 
-	C.gst_element_link(g.rtph264depay, g.avdec_h264)
-	C.gst_element_link(g.avdec_h264, g.videoconvert)
-	C.gst_element_link(g.videoconvert, g.autovideosink)
-
-	//C.gst_element_link(g.queue, g.rtph264depay)
-	//C.gst_element_link(g.rtph264depay, g.avdec_h264)
 	//C.gst_element_link(g.avdec_h264, g.videoconvert)
 	//C.gst_element_link(g.videoconvert, g.autovideosink)
 
-	if err := g.teeLink(g.teeVideo, g.rtph264depay, "src_%u", "sink"); err != nil {
-		fmt.Println("Tee video not linked: " + err.Error())
-	}
-
-	if err := g.teeLink(g.teeVideo, g.queue, "src_%u", "sink"); err != nil {
-		fmt.Println("Tee video not linked: " + err.Error())
-	}
+	//srcpad := C.gst_element_get_static_pad(g.rtph264pay, C.CString("src"))
+	//sinkpad := C.gst_element_get_request_pad(g.webrtc1, C.CString("sink_%u"))
+	//fmt.Println("sinkpad")
+	//fmt.Println(sinkpad)
+	//reason := C.gst_pad_link(srcpad, sinkpad)
+	//if reason != C.GST_PAD_LINK_OK {
+	//	fmt.Println(errors.New(strconv.Itoa(int(reason))).Error())
+	//}
+	//fmt.Println("$$$$$$$$$$$$$$$")
 	//
 	//if err := g.teeLink(g.queue, g.webrtc1, "src", "sink_%u"); err != nil {
 	//	fmt.Println("Tee queue not webrtc1: " + err.Error())
 	//}
 
-	g_signal_connect(unsafe.Pointer(g.webrtc), "pad-added", C.on_incoming_stream_wrap, unsafe.Pointer(g))
+	//g_signal_connect(unsafe.Pointer(g.webrtc), "pad-added", C.on_incoming_stream_wrap, unsafe.Pointer(g))
 	g_signal_connect(unsafe.Pointer(g.webrtc1), "pad-added", C.on_incoming_stream_wrap, unsafe.Pointer(g))
 
-	//g_signal_connect(unsafe.Pointer(g.webrtc), "on-negotiation-needed", C.on_negotiation_needed_wrap, unsafe.Pointer(g))
-	g_signal_connect(unsafe.Pointer(g.webrtc), "on-ice-candidate", C.send_ice_candidate_message_wrap, unsafe.Pointer(g))
+	g_signal_connect(unsafe.Pointer(g.webrtc1), "on-negotiation-needed", C.on_negotiation_needed_wrap, unsafe.Pointer(g))
+	//g_signal_connect(unsafe.Pointer(g.webrtc), "on-ice-candidate", C.send_ice_candidate_message_wrap, unsafe.Pointer(g))
 	g_signal_connect(unsafe.Pointer(g.webrtc1), "on-ice-candidate", C.send_ice_candidate_message_wrap, unsafe.Pointer(g))
 
 	//C.gst_element_set_state(g.pipeline, C.GST_STATE_READY)
@@ -215,14 +214,10 @@ func (g *GStreamer) InitGst() {
 	//g_signal_emit_by_name(g.webrtc, "create-data-channel", unsafe.Pointer(C.CString("channel")), nil, unsafe.Pointer(&g.send_channel))
 	//g_signal_emit_by_name(g.webrtc, "add-local-ip-address", unsafe.Pointer(C.CString("127.0.0.1")), nil, nil)
 
-	capsStr := C.CString("application/x-rtp,media=video,encoding-name=H264,clock-rate=90000")
-	defer C.free(unsafe.Pointer(capsStr))
-	var caps *C.GstCaps = C.gst_caps_from_string(capsStr)
 	//C.gst_caps_set_simple_wrap(caps,  C.CString("extmap"), C.G_TYPE_STRING, unsafe.Pointer(C.CString("http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time")))
 
 	//g.trans = new(C.GstWebRTCRTPTransceiver)
-	g_signal_emit_by_name_trans(g.webrtc, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_RECVONLY, unsafe.Pointer(caps))
-	g_signal_emit_by_name_trans(g.webrtc1, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY, unsafe.Pointer(caps))
+	//g_signal_emit_by_name_trans(g.webrtc, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_RECVONLY, unsafe.Pointer(caps))
 	//C.g_object_set_fec(g.trans)
 
 	//if g.send_channel != nil {
@@ -232,10 +227,8 @@ func (g *GStreamer) InitGst() {
 	//}
 
 	//g.loop = C.g_main_loop_new(nil, 0)
-
-	g.bus = gst_pipeline_get_bus(unsafe.Pointer(g.pipeline))
-	C.gst_bus_add_signal_watch(g.bus)
-	g_signal_connect(unsafe.Pointer(g.bus), "message", C.bus_call_wrap, unsafe.Pointer(g))
+	g.loadBus()
+	C.gst_element_set_state(g.pipeline, C.GST_STATE_PLAYING)
 	//C.g_main_loop_run(g.loop)
 }
 
@@ -309,9 +302,9 @@ func (g *GStreamer) readMessages() {
 		}
 		switch msg.Id {
 		case "start":
-			if err := g.on_offer_received(msg, g.webrtc); err != nil {
-				log.Println(err.Error())
-			}
+			//if err := g.on_offer_received(msg, g.webrtc); err != nil {
+			//	log.Println(err.Error())
+			//}
 			break
 		case "client_start":
 			if err := g.on_offer_received(msg, g.webrtc1); err != nil {
@@ -319,7 +312,7 @@ func (g *GStreamer) readMessages() {
 			}
 			break
 		case "onIceCandidate":
-			g.iceCandidateReceived(msg, g.webrtc)
+			//g.iceCandidateReceived(msg, g.webrtc)
 			break
 		case "onIceCandidateClient":
 			g.iceCandidateReceived(msg, g.webrtc1)
@@ -357,7 +350,7 @@ func (g *GStreamer) on_offer_received(msg Message, dst *C.GstElement) (err error
 
 func (g *GStreamer) iceCandidateReceived(msg Message, webrtc *C.GstElement) {
 	if msg.Candidate.Candidate == "" {
-		//g_signal_emit_by_name(g.webrtc, "add-ice-candidate", nil, nil, nil)
+		g_signal_emit_by_name(webrtc, "add-ice-candidate", nil, nil, nil)
 		return
 	}
 	fmt.Println(msg)
