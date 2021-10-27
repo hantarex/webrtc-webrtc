@@ -4901,3 +4901,92 @@ a=fmtp:96 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e015
 2021/10/27 18:27:41 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
 2021/10/27 18:27:41 Server listen :8083
 2021/10/27 18:28:26 Connected:  [::1]:33042   tcp
+2021/10/27 18:31:06 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 18:31:06 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 18:31:06 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 18:31:06 Server listen :8083
+2021/10/27 18:31:09 Connected:  [::1]:34904   tcp
+2021/10/27 18:45:07 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 18:45:07 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 18:45:07 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 18:45:07 Server listen :8083
+2021/10/27 18:45:11 Connected:  [::1]:44568   tcp
+2021/10/27 18:52:10 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 18:52:10 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 18:52:10 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 18:52:10 Server listen :8083
+2021/10/27 18:52:27 Connected:  [::1]:49578   tcp
+2021/10/27 18:52:42 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 18:52:42 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 18:52:42 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 18:52:42 Server listen :8083
+2021/10/27 18:52:44 Connected:  [::1]:49818   tcp
+2021/10/27 18:53:43 read: websocket: close 1001 (going away)
+2021/10/27 18:53:43 Connection closed:  [::1]:49818   tcp
+2021/10/27 18:53:51 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 18:53:51 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 18:53:51 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 18:53:51 Server listen :8083
+2021/10/27 18:53:55 Connected:  [::1]:50626   tcp
+2021/10/27 19:01:02 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 19:01:02 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 19:01:02 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 19:01:02 Server listen :8083
+2021/10/27 19:01:05 Connected:  [::1]:55518   tcp
+2021/10/27 19:03:21 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 19:03:21 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 19:03:21 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 19:03:21 Server listen :8083
+2021/10/27 19:03:24 Connected:  [::1]:57088   tcp
+2021/10/27 19:03:53 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 19:03:53 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 19:03:53 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 19:03:53 Server listen :8083
+2021/10/27 19:03:54 Connected:  [::1]:57468   tcp
+2021/10/27 19:05:25 Connected:  127.0.0.1:41560   tcp
+2021/10/27 19:06:17 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 19:06:17 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 19:06:17 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 19:06:17 Server listen :8083
+2021/10/27 19:06:26 Connected:  127.0.0.1:42264   tcp
+2021/10/27 19:07:08 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 19:07:08 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 19:07:08 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 19:07:08 Server listen :8083
+2021/10/27 19:07:16 Connected:  127.0.0.1:42860   tcp
+2021/10/27 19:07:59 Connected:  [::1]:60312   tcp
+2021/10/27 19:08:37 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 19:08:37 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 19:08:37 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 19:08:37 Server listen :8083
+2021/10/27 19:08:40 Connected:  [::1]:60772   tcp
+2021/10/27 19:14:00 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 19:14:00 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 19:14:00 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 19:14:00 Server listen :8083
+2021/10/27 19:14:06 Connected:  [::1]:36396   tcp
+2021/10/27 19:14:52 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 19:14:52 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 19:14:52 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 19:14:52 Server listen :8083
+2021/10/27 19:14:54 Connected:  [::1]:36970   tcp
+2021/10/27 19:15:15 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 19:15:15 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 19:15:15 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 19:15:15 Server listen :8083
+2021/10/27 19:15:17 Connected:  [::1]:37212   tcp
+2021/10/27 19:15:37 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 19:15:37 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 19:15:37 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 19:15:37 Server listen :8083
+2021/10/27 19:15:39 Connected:  [::1]:37476   tcp
+2021/10/27 19:15:46 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 19:15:46 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 19:15:46 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 19:15:46 Server listen :8083
+2021/10/27 19:15:49 Connected:  [::1]:37624   tcp
+2021/10/27 19:17:11 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 19:17:11 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 19:17:11 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 19:17:11 Server listen :8083
+2021/10/27 19:17:13 Connected:  [::1]:38548   tcp

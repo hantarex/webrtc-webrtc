@@ -171,7 +171,7 @@ func (g *GStreamer) InitGst() {
 	//defer C.free(unsafe.Pointer(pipeStr))
 	//g.pipeline = C.gst_parse_launch(C.CString("webrtcbin bundle-policy=max-bundle stun-server=stun://stun.l.google.com:19302 name=recv recv. ! rtpvp8depay ! vp8dec ! videoconvert ! queue ! autovideosink"), &g.gError)
 	//g.pipeline = C.gst_parse_launch(C.CString("webrtcbin bundle-policy=max-bundle stun-server=stun://stun.l.google.com:19302 name=recv recv. ! rtph264depay ! avdec_h264 ! queue ! autovideosink"), &g.gError)
-	g.pipeline = C.gst_parse_launch(C.CString("videotestsrc is-live=true ! queue2 ! videoconvert ! x264enc ! h264parse ! queue2 ! rtph264pay pt=96 ! webrtcbin stun-server=stun://stun.l.google.com:19302 name=sendrecv"), &g.gError)
+	g.pipeline = C.gst_parse_launch(C.CString("videotestsrc ! queue2 ! videoconvert ! video/x-raw,format=NV12 ! nvh264enc ! video/x-h264,profile=baseline ! h264parse ! queue2 ! rtph264pay pt=96 ! webrtcbin stun-server=stun://stun.l.google.com:19302 name=sendrecv"), &g.gError)
 	// webrtcbin1
 	g.webrtc1 = C.gst_bin_get_by_name(GST_BIN(g.pipeline), C.CString("sendrecv"))
 	fmt.Println(g.webrtc1)
