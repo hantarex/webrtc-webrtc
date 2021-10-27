@@ -171,7 +171,7 @@ func (g *GStreamer) InitGst() {
 	//defer C.free(unsafe.Pointer(pipeStr))
 	//g.pipeline = C.gst_parse_launch(C.CString("webrtcbin bundle-policy=max-bundle stun-server=stun://stun.l.google.com:19302 name=recv recv. ! rtpvp8depay ! vp8dec ! videoconvert ! queue ! autovideosink"), &g.gError)
 	//g.pipeline = C.gst_parse_launch(C.CString("webrtcbin bundle-policy=max-bundle stun-server=stun://stun.l.google.com:19302 name=recv recv. ! rtph264depay ! avdec_h264 ! queue ! autovideosink"), &g.gError)
-	g.pipeline = C.gst_parse_launch(C.CString("videotestsrc is-live=true ! queue ! videoconvert ! x264enc ! queue ! rtph264pay pt=96 ! webrtcbin stun-server=stun://stun.l.google.com:19302 name=sendrecv"), &g.gError)
+	g.pipeline = C.gst_parse_launch(C.CString("videotestsrc is-live=true ! queue2 ! videoconvert ! x264enc ! h264parse ! queue2 ! rtph264pay pt=96 ! webrtcbin stun-server=stun://stun.l.google.com:19302 name=sendrecv"), &g.gError)
 	// webrtcbin1
 	g.webrtc1 = C.gst_bin_get_by_name(GST_BIN(g.pipeline), C.CString("sendrecv"))
 	fmt.Println(g.webrtc1)
@@ -180,7 +180,7 @@ func (g *GStreamer) InitGst() {
 	//fmt.Println(t.direction)
 	//g_object_int(C.gpointer(g.webrtc1), "latency", 0)
 	//g_object_set_bool(C.gpointer(g.webrtc1), "async-handling", true)
-	//C.g_array_index_zero(g.webrtc1)
+	C.g_array_index_zero(g.webrtc1)
 
 	//capsStr := C.CString("application/x-rtp,media=video,encoding-name=H264,clock-rate=90000,payload=96")
 	//defer C.free(unsafe.Pointer(capsStr))
