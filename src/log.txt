@@ -4990,3 +4990,16 @@ a=fmtp:96 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e015
 2021/10/27 19:17:11 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
 2021/10/27 19:17:11 Server listen :8083
 2021/10/27 19:17:13 Connected:  [::1]:38548   tcp
+2021/10/27 19:17:51 Connected:  127.0.0.1:50322   tcp
+2021/10/27 19:18:45 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/10/27 19:18:45 Server listen :8083
+2021/10/27 19:18:48 Connected:  [::1]:39706   tcp
+2021/10/27 19:20:45 read: websocket: close 1001 (going away)
+2021/10/27 19:20:45 Connection closed:  [::1]:39706   tcp
+2021/10/27 19:27:52 Not use env WS_PORT. Set default ws port: 8083
+2021/10/27 19:27:52 Not use env RTMP_DST. Set default addres: rtmp://127.0.0.1:1945/
+2021/10/27 19:27:52 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1945/
+2021/10/27 19:27:52 Server listen :8083
+2021/10/27 19:28:11 Connected:  [::1]:42590   tcp
+2021/10/27 19:35:31 read: websocket: close 1001 (going away)
+2021/10/27 19:35:31 Connection closed:  [::1]:42590   tcp
