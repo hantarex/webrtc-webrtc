@@ -9,6 +9,7 @@
 #include <types.h>
 #include <stdio.h>
 #include <stdbool.h>
+//#include <webrtc-priv.h>
 
 gboolean print_field (GQuark field, const GValue * value, gpointer pfx) {
   gchar *str = gst_value_serialize (value);
@@ -109,10 +110,14 @@ GstWebRTCRTPTransceiver *g_array_index_wrap(GArray *a,int i) {
     return  g_array_index(a, GstWebRTCRTPTransceiver*, i);
 }
 
-GArray* g_array_index_zero(GstElement *webrtc) {
-    GArray* transceivers;
-    g_signal_emit_by_name(webrtc, "get-transceivers", &transceivers);
-    return transceivers;
+void g_array_index_zero(GstElement *webrtc) {
+//    GArray* transceivers;
+//    GstWebRTCRTPTransceiver* t;
+//    g_signal_emit_by_name(webrtc, "get-transceivers", &transceivers);
+//    t = g_array_index(transceivers, GstWebRTCRTPTransceiver*, 0);
+//    t->direction = GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY;
+//    g_object_unref(t);
+//    g_array_unref(transceivers);
 }
 
 void g_object_set_fec(GstWebRTCRTPTransceiver* trans) {

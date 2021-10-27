@@ -8,6 +8,7 @@
 #include <string.h>
 #include <types.h>
 #include <stdbool.h>
+//#include <webrtc-priv.h>
 
 gboolean bus_call (GstBus *bus, GstMessage *msg, void *data);
 void on_negotiation_needed_wrap (GstElement * webrtc, gpointer user_data);
@@ -26,4 +27,4 @@ void g_object_set_bool_wrap(gpointer object_type, gchar *first_property_name, bo
 GstCaps *gst_caps_set_format();
 void sendKeyFrame(GstPad * pad);
 void g_object_set_int_wrap(gpointer object_type, gchar *first_property_name, int three);
-GArray* g_array_index_zero(GstElement *webrtc);
+void g_array_index_zero(GstElement *webrtc);

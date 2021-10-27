@@ -171,19 +171,21 @@ func (g *GStreamer) InitGst() {
 	//defer C.free(unsafe.Pointer(pipeStr))
 	//g.pipeline = C.gst_parse_launch(C.CString("webrtcbin bundle-policy=max-bundle stun-server=stun://stun.l.google.com:19302 name=recv recv. ! rtpvp8depay ! vp8dec ! videoconvert ! queue ! autovideosink"), &g.gError)
 	//g.pipeline = C.gst_parse_launch(C.CString("webrtcbin bundle-policy=max-bundle stun-server=stun://stun.l.google.com:19302 name=recv recv. ! rtph264depay ! avdec_h264 ! queue ! autovideosink"), &g.gError)
-	g.pipeline = C.gst_parse_launch(C.CString("videotestsrc ! queue !nvh264enc ! queue ! rtph264pay ! queue ! webrtcbin stun-server=stun://stun.l.google.com:19302 name=sendrecv"), &g.gError)
+	g.pipeline = C.gst_parse_launch(C.CString("videotestsrc is-live=true ! queue ! videoconvert ! x264enc ! queue ! rtph264pay pt=96 ! webrtcbin stun-server=stun://stun.l.google.com:19302 name=sendrecv"), &g.gError)
 	// webrtcbin1
 	g.webrtc1 = C.gst_bin_get_by_name(GST_BIN(g.pipeline), C.CString("sendrecv"))
+	fmt.Println(g.webrtc1)
 	//ts := C.g_array_index_zero(g.webrtc1)
 	//t := C.g_array_index_wrap(ts, 0)
 	//fmt.Println(t.direction)
 	//g_object_int(C.gpointer(g.webrtc1), "latency", 0)
 	//g_object_set_bool(C.gpointer(g.webrtc1), "async-handling", true)
+	//C.g_array_index_zero(g.webrtc1)
 
-	capsStr := C.CString("application/x-rtp")
-	defer C.free(unsafe.Pointer(capsStr))
-	var caps *C.GstCaps = C.gst_caps_from_string(capsStr)
-	g_signal_emit_by_name_trans(g.webrtc1, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY, unsafe.Pointer(caps))
+	//capsStr := C.CString("application/x-rtp,media=video,encoding-name=H264,clock-rate=90000,payload=96")
+	//defer C.free(unsafe.Pointer(capsStr))
+	//var caps *C.GstCaps = C.gst_caps_from_string(capsStr)
+	//g_signal_emit_by_name_trans(g.webrtc1, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY, unsafe.Pointer(caps))
 
 	//C.gst_element_link(g.avdec_h264, g.videoconvert)
 	//C.gst_element_link(g.videoconvert, g.autovideosink)
@@ -306,8 +308,13 @@ func (g *GStreamer) readMessages() {
 			//	log.Println(err.Error())
 			//}
 			break
-		case "client_start":
-			if err := g.on_offer_received(msg, g.webrtc1); err != nil {
+		//case "client_start":
+		//	if err := g.on_offer_received(msg, g.webrtc1); err != nil {
+		//		log.Println(err.Error())
+		//	}
+		//	break
+		case "client_answer":
+			if err := g.on_answer_received(msg, g.webrtc1); err != nil {
 				log.Println(err.Error())
 			}
 			break
@@ -318,6 +325,7 @@ func (g *GStreamer) readMessages() {
 			g.iceCandidateReceived(msg, g.webrtc1)
 			break
 		default:
+			log.Println(msg)
 			log.Println("Error readMessages")
 		}
 	}
@@ -348,9 +356,32 @@ func (g *GStreamer) on_offer_received(msg Message, dst *C.GstElement) (err error
 	return
 }
 
+func (g *GStreamer) on_answer_received(msg Message, dst *C.GstElement) (err error) {
+	fmt.Println("on_answer_received")
+	fmt.Println(msg)
+
+	var sdp *C.GstSDPMessage
+	C.gst_sdp_message_new(&sdp)
+	spdStr := C.CString(msg.SdpOffer)
+	defer C.free(unsafe.Pointer(spdStr))
+	C.gst_sdp_message_parse_buffer_wrap(spdStr, C.strlen(spdStr), sdp)
+	//
+	var offer *C.GstWebRTCSessionDescription
+	var promise *C.GstPromise
+	//
+	offer = C.gst_webrtc_session_description_new(C.GST_WEBRTC_SDP_TYPE_ANSWER, sdp)
+	promise = C.gst_promise_new_with_change_func(C.GCallback(C.on_offer_set_wrap), C.gpointer(&PassWebrtc{
+		g:      g,
+		webrtc: dst,
+	}), nil)
+	g_signal_emit_by_name_offer_remote(dst, "set-remote-description", offer, promise)
+	return
+}
+
 func (g *GStreamer) iceCandidateReceived(msg Message, webrtc *C.GstElement) {
+	fmt.Println("iceCandidateReceived")
 	if msg.Candidate.Candidate == "" {
-		g_signal_emit_by_name(webrtc, "add-ice-candidate", nil, nil, nil)
+		//g_signal_emit_by_name(webrtc, "add-ice-candidate", nil, nil, nil)
 		return
 	}
 	fmt.Println(msg)

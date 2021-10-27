@@ -16,15 +16,15 @@ import (
 func on_negotiation_needed(webrtc *C.GstElement, user_data unsafe.Pointer) {
 	g := (*GStreamer)(user_data)
 	fmt.Println("on_negotiation_needed")
-	capsStr := C.CString("application/x-rtp,media=video,encoding-name=H264,clock-rate=90000")
-	defer C.free(unsafe.Pointer(capsStr))
-	var caps *C.GstCaps = C.gst_caps_from_string(capsStr)
-	g_signal_emit_by_name_trans(g.webrtc1, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY, unsafe.Pointer(caps))
+	//capsStr := C.CString("application/x-rtp,media=video,encoding-name=H264,clock-rate=90000")
+	//defer C.free(unsafe.Pointer(capsStr))
+	//var caps *C.GstCaps = C.gst_caps_from_string(capsStr)
+	//g_signal_emit_by_name_trans(g.webrtc1, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY, unsafe.Pointer(caps))
 	//transceivers := C.g_array_index_zero(g.webrtc1)
 	//t := C.g_array_index_wrap(transceivers, 0)
 	//fmt.Println(t)
-	//promise := C.gst_promise_new_with_change_func(C.GCallback(C.on_offer_created_wrap), C.gpointer(user_data), nil)
-	//g_signal_emit_by_name((*GStreamer)(user_data).webrtc, "create-offer", nil, unsafe.Pointer(promise), nil)
+	promise := C.gst_promise_new_with_change_func(C.GCallback(C.on_offer_created_wrap), C.gpointer(user_data), nil)
+	g_signal_emit_by_name(g.webrtc1, "create-offer", nil, unsafe.Pointer(promise), nil)
 }
 
 //export on_offer_set
@@ -34,13 +34,16 @@ func on_offer_set(promise *C.GstPromise, user_data unsafe.Pointer) {
 	//var transceiver *C.GstWebRTCRTPTransceiver
 	//transceiver = C.g_array_index_zero(g.g.webrtc1)
 	//fmt.Println(transceiver)
-	promise = C.gst_promise_new_with_change_func(C.GCallback(C.on_answer_created_wrap), C.gpointer(user_data), nil)
-	g_signal_emit_by_name((*PassWebrtc)(user_data).webrtc, "create-answer", nil, unsafe.Pointer(promise), nil)
+	//C.g_array_index_zero(g.g.webrtc1)
+
+	//promise = C.gst_promise_new_with_change_func(C.GCallback(C.on_answer_created_wrap), C.gpointer(user_data), nil)
+	//g_signal_emit_by_name((*PassWebrtc)(user_data).webrtc, "create-answer", nil, unsafe.Pointer(promise), nil)
 
 }
 
 //export on_answer_created
 func on_answer_created(promise *C.GstPromise, user_data unsafe.Pointer) {
+	fmt.Println("on_answer_created")
 	g := (*PassWebrtc)(user_data)
 	answer := new(C.GstWebRTCSessionDescription)
 
@@ -61,17 +64,16 @@ func on_answer_created(promise *C.GstPromise, user_data unsafe.Pointer) {
 //export on_offer_created
 func on_offer_created(promise *C.GstPromise, webrtc unsafe.Pointer) {
 	fmt.Println("on_offer_created")
-	//g := (*GStreamer)(webrtc)
-	//offer := new(C.GstWebRTCSessionDescription)
-	//var reply *C.GstStructure
-	////defer C.free(unsafe.Pointer(reply))
-	//reply = C.gst_promise_get_reply(promise)
-	//gst_structure_get(reply, "offer", C.GST_TYPE_WEBRTC_SESSION_DESCRIPTION, offer, nil)
-	//
-	//g_signal_emit_by_name_offer(g.webrtc, "set-local-description", offer)
-	//g.sendSpdToPeer(offer)
-	/* Implement this and send offer to peer using signalling */
-	//	send_sdp_offer (offer);
+	g := (*GStreamer)(webrtc)
+	offer := new(C.GstWebRTCSessionDescription)
+	var reply *C.GstStructure
+	//defer C.free(unsafe.Pointer(reply))
+	reply = C.gst_promise_get_reply(promise)
+	gst_structure_get(reply, "offer", C.GST_TYPE_WEBRTC_SESSION_DESCRIPTION, offer, nil)
+	g_signal_emit_by_name_offer(g.webrtc1, "set-local-description", offer)
+	g.sendSpdToPeer(offer)
+	///* Implement this and send offer to peer using signalling */
+	//g.sendSpdToPeer (offer);
 }
 
 //export bus_call
