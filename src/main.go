@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"webrtc-webrtc/gstreamer"
 	websocket2 "webrtc-webrtc/websocket"
 )
 
@@ -14,7 +15,6 @@ var addrDockerWS = os.Getenv("WS_PORT")
 var addrDockerRTMP = os.Getenv("RTMP_DST")
 var addr = "8083"
 var rtmp = "rtmp://127.0.0.1:1945/"
-var Iter = 1
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -24,7 +24,7 @@ var upgrader = websocket.Upgrader{
 
 func ws(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
-	ws := websocket2.WebSocket{Conn: c, Errs: make(chan string, 1)}
+	ws := websocket2.WebSocket{Conn: c, Errs: make(chan string, 1), GStreamer: gstreamer.GStreamer{C: c}}
 	go ws.ReadMessages()
 	go ws.Ping()
 	if err != nil {

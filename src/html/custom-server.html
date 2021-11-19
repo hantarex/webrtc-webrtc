@@ -87,10 +87,12 @@
 			socket.send(JSON.stringify({id: 'onIceCandidateClient', candidate: e.candidate}));
 		});
 
-		const stream = navigator.mediaDevices.getUserMedia({
+		navigator.mediaDevices.getUserMedia({
 			audio: false,
 			video: {width: {exact: 2560}, height: {exact: 1440}}
 		}).then((stream) => {
+			addVideoForStream(stream,true);
+			pc.addStream(stream);
 			socket = new WebSocket(addressWS);
 			socket.onopen = async () => {
 				socket.send(JSON.stringify({
@@ -107,13 +109,13 @@
 							type	:'offer',
 							sdp	: parsedMessage.sdpAnswer
 						});
-						console.debug(answer.sdp);
+						console.debug("offer", answer.sdp);
 						await pc.setRemoteDescription(answer);
 						const offer = await pc.createAnswer({
 							offerToReceiveAudio: false,
-							offerToReceiveVideo: true,
+							offerToReceiveVideo: false
 						});
-						console.log(offer.sdp)
+						console.log("answer", offer.sdp)
 						//Set it
 						pc.setLocalDescription(offer);
 						socket.send(JSON.stringify({
@@ -130,7 +132,6 @@
 				}
 			};
 
-			addVideoForStream(stream,true);
 		});
         container = document.getElementById('container');
     }

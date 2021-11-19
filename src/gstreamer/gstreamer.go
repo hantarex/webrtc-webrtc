@@ -31,7 +31,7 @@ type GStreamer struct {
 	bus *C.GstBus
 	//loop         *C.GMainLoop
 	ret         C.GstStateChangeReturn
-	c           *websocket.Conn
+	C           *websocket.Conn
 	trans       *C.GstWebRTCRTPTransceiver
 	RtmpAddress string
 	RtmpKey     string
@@ -60,8 +60,7 @@ func (g *GStreamer) teeLink(source *C.GstElement, target *C.GstElement, srcStrNa
 
 func (g *GStreamer) Close(code int, text string) (err error) {
 	g.cancel()
-	g.c.Close()
-	log.Println("Connection closed: ", g.c.RemoteAddr().String(), " ", g.c.RemoteAddr().Network())
+	log.Println("Connection closed: ", g.C.RemoteAddr().String(), " ", g.C.RemoteAddr().Network())
 	C.gst_element_set_state(g.pipeline, C.GST_STATE_NULL)
 	//C.g_main_loop_quit(g.loop)
 	if g.trans != nil {
@@ -162,18 +161,16 @@ func (g GStreamer) sendSpdToPeer(desc *C.GstWebRTCSessionDescription) {
 		fmt.Println("Sending answer offer")
 	} else {
 		log.Println("sendSpdToPeer:", "type not found")
-		g.c.Close()
 		return
 	}
 	fmt.Println(C.GoString(text))
-	err := g.c.WriteJSON(Message{
+	err := g.C.WriteJSON(Message{
 		Id:        "startResponse",
 		SdpAnswer: C.GoString(text),
 	})
 	C.g_free(C.gpointer(text))
 	if err != nil {
 		log.Println("sendSpdToPeer:", err)
-		g.c.Close()
 	}
 }
 
@@ -181,15 +178,13 @@ func (g GStreamer) sendIceCandidate(ice string) {
 	var msg Message
 	if err := json.Unmarshal([]byte(ice), &msg); err != nil {
 		log.Printf("Сбой демаршалинга JON: %s\n", err)
-		g.c.Close()
 	}
-	err := g.c.WriteJSON(Message{
+	err := g.C.WriteJSON(Message{
 		Id:        "iceCandidate",
 		Candidate: msg.Candidate,
 	})
 	if err != nil {
 		log.Println("iceCandidate:", err)
-		g.c.Close()
 	}
 }
 

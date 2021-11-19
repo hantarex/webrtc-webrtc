@@ -18,13 +18,19 @@ func (g *GStreamer) InitGstServer() {
 		"h264parse ! queue2 use-buffering=true ! mux. webrtcbin. ! " +
 		"rtpopusdepay ! " +
 		"opusdec max-errors=-1 ! audioconvert ! avenc_aac ! queue2 use-buffering=true ! mux. flvmux latency=2000 min-upstream-latency=2000 name=mux emit-signals=true streamable=true ! " +
-		"rtmp2sink async-connect=false async=false sync=false render-delay=5000 ts-offset=2000 name=rtmp2sink")
+		"filesink location=test.flv")
 	defer C.free(unsafe.Pointer(pipeStr))
 	g.pipeline = C.gst_parse_launch(pipeStr, &g.gError)
 
 	webrtcName := C.CString("webrtcbin")
 	defer C.free(unsafe.Pointer(webrtcName))
 	g.Webrtc = C.gst_bin_get_by_name(GST_BIN(g.pipeline), C.CString("webrtcbin"))
+
+	//capsStr := C.CString("application/x-rtp,media=video,encoding-name=H264,clock-rate=90000")
+	//defer C.free(unsafe.Pointer(capsStr))
+	//var caps *C.GstCaps = C.gst_caps_from_string(capsStr)
+	//
+	//g_signal_emit_by_name_trans(g.Webrtc, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_RECVONLY, unsafe.Pointer(caps))
 
 	g_signal_connect(unsafe.Pointer(g.Webrtc), "pad-added", C.on_incoming_stream_wrap, unsafe.Pointer(g))
 
