@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<title> webrtc test  </title>
+<style type="text/css">
+	.room {
+		cursor: pointer;
+	}
+	div.select {
+      display: inline-block;
+      margin: 0 0 1em 0;
+    }
+</style>
+
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+
+<script type='text/javascript'>
+	const addressWS = "ws://localhost:8083/ws";
+	window.localStorage.setItem('debug', '*');
+	let container;
+	var socket;
+	const video = document.createElement("video");
+
+	function addVideoForStream(stream,muted)
+	{
+		console.log(stream);
+		//Create new video element
+		//Set same id
+		video.id = stream.id;
+		video.width = 320;
+		video.height = 240;
+		//Set src stream
+		video.srcObject = stream;
+		//Set other properties
+		video.autoplay = true;
+		video.muted = muted;
+
+		//Append it
+		container.appendChild(video);
+		waitUntilRemoteStreamStartsFlowing();
+	}
+
+	function waitUntilRemoteStreamStartsFlowing()
+	{
+		if (!(video.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA
+				|| video.paused || video.currentTime <= 0))
+		{
+			console.log("started")
+		}
+		else setTimeout(waitUntilRemoteStreamStartsFlowing, 50);
+	}
+	function removeVideoForStream(stream)
+	{
+		//Get video
+		var video = document.getElementById(stream.id);
+		//Remove it when done
+		video.addEventListener('webkitTransitionEnd',function(){
+			//Delete it
+			video.parentElement.removeChild(video);
+		});
+		//Disable it first
+		video.className = "disabled";
+	}
+    function connect() 
+    {
+		var pc = new RTCPeerConnection({ iceServers: [{ url: 'stun:stun.l.google.com:19302' }] });
+
+		pc.onaddstream = function(event) {
+			console.debug("pc::onaddstream",event);
+			//Play it
+			addVideoForStream(event.stream,true);
+		};
+
+		pc.ontrack = function(event) {
+			console.debug("pc::ontrack",event);
+			//Play it
+			addVideoForStream(event.streams[0],true);
+		};
+
+		pc.onremovestream = function(event) {
+			console.debug("pc::onRemoveStream",event);
+			//Play it
+			removeVideoForStream(event.stream);
+		};
+		pc.addEventListener('icecandidate', e => {
+			socket.send(JSON.stringify({id: 'onIceCandidateClient', candidate: e.candidate}));
+		});
+
+		const stream = navigator.mediaDevices.getUserMedia({
+			audio: false,
+			video: {width: {exact: 2560}, height: {exact: 1440}}
+		}).then((stream) => {
+			socket = new WebSocket(addressWS);
+			socket.onopen = async () => {
+				socket.send(JSON.stringify({
+					id: 'type',
+					key: 'server'
+				}));
+			};
+			socket.onmessage  = async (event) =>{
+				const parsedMessage = JSON.parse(event.data);
+				switch (parsedMessage.id) {
+					case 'startResponse':
+						console.log("startResponse");
+						const answer = new RTCSessionDescription({
+							type	:'offer',
+							sdp	: parsedMessage.sdpAnswer
+						});
+						console.debug(answer.sdp);
+						await pc.setRemoteDescription(answer);
+						const offer = await pc.createAnswer({
+							offerToReceiveAudio: false,
+							offerToReceiveVideo: true,
+						});
+						console.log(offer.sdp)
+						//Set it
+						pc.setLocalDescription(offer);
+						socket.send(JSON.stringify({
+							id: 'client_answer',
+							sdpOffer: offer.sdp,
+							key: 'c22839d94fee8e79f9831de63916bbf2372b378168af9a31e45d5cd8edf23a56'
+						}));
+						break;
+					case 'iceCandidate':
+						console.log(parsedMessage);
+						pc.addIceCandidate(new RTCIceCandidate(parsedMessage.candidate)).then().catch(r => console.log(r));
+						break;
+					default:
+				}
+			};
+
+			addVideoForStream(stream,true);
+		});
+        container = document.getElementById('container');
+    }
+
+</script>
+
+</head>
+<body onload="connect();">
+	<h1>MediaServer  Demo</h1>
+	<br/>
+
+	<div id="conference">
+		videos:
+		<br />
+		<div id="container"></div>
+	</div>
+</body>
+
+
+</html>

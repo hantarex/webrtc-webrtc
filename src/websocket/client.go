@@ -117,7 +117,6 @@ func (self *WebSocket) Ping() {
 		case <-time.After(time.Second):
 		}
 		if err := self.Conn.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
-			log.Println("error ping")
 			return
 		}
 	}
