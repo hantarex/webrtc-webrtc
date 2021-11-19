@@ -19,12 +19,12 @@ func on_negotiation_needed(webrtc *C.GstElement, user_data unsafe.Pointer) {
 	//capsStr := C.CString("application/x-rtp,media=video,encoding-name=H264,clock-rate=90000")
 	//defer C.free(unsafe.Pointer(capsStr))
 	//var caps *C.GstCaps = C.gst_caps_from_string(capsStr)
-	//g_signal_emit_by_name_trans(g.webrtc1, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY, unsafe.Pointer(caps))
-	//transceivers := C.g_array_index_zero(g.webrtc1)
+	//g_signal_emit_by_name_trans(g.Webrtc, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY, unsafe.Pointer(caps))
+	//transceivers := C.g_array_index_zero(g.Webrtc)
 	//t := C.g_array_index_wrap(transceivers, 0)
 	//fmt.Println(t)
 	promise := C.gst_promise_new_with_change_func(C.GCallback(C.on_offer_created_wrap), C.gpointer(user_data), nil)
-	g_signal_emit_by_name(g.webrtc1, "create-offer", nil, unsafe.Pointer(promise), nil)
+	g_signal_emit_by_name(g.Webrtc, "create-offer", nil, unsafe.Pointer(promise), nil)
 }
 
 //export on_offer_set
@@ -32,9 +32,9 @@ func on_offer_set(promise *C.GstPromise, user_data unsafe.Pointer) {
 	//g := (*PassWebrtc)(user_data)
 	C.gst_promise_unref(promise)
 	//var transceiver *C.GstWebRTCRTPTransceiver
-	//transceiver = C.g_array_index_zero(g.g.webrtc1)
+	//transceiver = C.g_array_index_zero(g.g.Webrtc)
 	//fmt.Println(transceiver)
-	//C.g_array_index_zero(g.g.webrtc1)
+	//C.g_array_index_zero(g.g.Webrtc)
 
 	//promise = C.gst_promise_new_with_change_func(C.GCallback(C.on_answer_created_wrap), C.gpointer(user_data), nil)
 	//g_signal_emit_by_name((*PassWebrtc)(user_data).webrtc, "create-answer", nil, unsafe.Pointer(promise), nil)
@@ -70,7 +70,7 @@ func on_offer_created(promise *C.GstPromise, webrtc unsafe.Pointer) {
 	//defer C.free(unsafe.Pointer(reply))
 	reply = C.gst_promise_get_reply(promise)
 	gst_structure_get(reply, "offer", C.GST_TYPE_WEBRTC_SESSION_DESCRIPTION, offer, nil)
-	g_signal_emit_by_name_offer(g.webrtc1, "set-local-description", offer)
+	g_signal_emit_by_name_offer(g.Webrtc, "set-local-description", offer)
 	g.sendSpdToPeer(offer)
 	///* Implement this and send offer to peer using signalling */
 	//g.sendSpdToPeer (offer);
@@ -120,7 +120,7 @@ func on_incoming_stream(webrtc *C.GstElement, pad *C.GstPad, user_data unsafe.Po
 		//fmt.Println(C.GoString(C.gst_caps_to_string(C.gst_pad_template_get_caps(C.gst_pad_get_pad_template(pad)))))
 		////C.gst_element_link(g.queue, g.rtph264depay)
 		//srcpad := C.gst_element_get_static_pad(g.rtph264pay, C.CString("src"))
-		////sinkpad := C.gst_element_get_request_pad(g.webrtc1, C.CString("sink_%u"))
+		////sinkpad := C.gst_element_get_request_pad(g.Webrtc, C.CString("sink_%u"))
 		////fmt.Println("sinkpad")
 		////fmt.Println(sinkpad)
 		//reason := C.gst_pad_link(srcpad, pad)

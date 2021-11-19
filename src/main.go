@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"webrtc-webrtc/gstreamer"
+	websocket2 "webrtc-webrtc/websocket"
 )
 
 var useAddr, useRTMP string
@@ -24,15 +24,13 @@ var upgrader = websocket.Upgrader{
 
 func ws(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
+	ws := websocket2.WebSocket{Conn: c, Errs: make(chan string, 1)}
+	go ws.ReadMessages()
+	go ws.Ping()
 	if err != nil {
 		log.Print("upgrade:", err)
 		return
 	}
-	gst := gstreamer.GStreamer{
-		RtmpAddress: useRTMP,
-		Iter:        Iter,
-	}
-	gst.InitConnection(c)
 }
 
 func main() {
