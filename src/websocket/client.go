@@ -63,10 +63,10 @@ func (self *WebSocket) readMessagesClient(msg gstreamer.Message) {
 		fmt.Println("ERRROR")
 	}
 	self.InitGstClient(server.server.GStreamer)
-	go func() {
-		time.Sleep(time.Second * 2)
-		self.GStreamer.ConnectClient(server.server.GStreamer)
-	}()
+	//go func() {
+	//	time.Sleep(time.Second * 2)
+	//	self.GStreamer.ConnectClient(server.server.GStreamer)
+	//}()
 
 	for {
 		var msg gstreamer.Message
