@@ -15,53 +15,48 @@ import (
 )
 
 func (g *GStreamer) InitGstClient(server *GStreamer) {
-	pipeStr := C.CString("h264parse name=h264parse ! rtph264pay name=rtph264pay pt=96 ! webrtcbin name=webrtc stun-server=stun://stun.l.google.com:19302")
-	defer C.free(unsafe.Pointer(pipeStr))
-	g.pipeline = C.gst_parse_launch(pipeStr, &g.GError)
-
-	fmt.Println(g.pipeline)
-
-	webrtcName := C.CString("webrtc")
+	C.gst_element_set_state(server.pipeline, C.GST_STATE_PAUSED)
+	webrtcName := C.CString("webrtcbin")
 	defer C.free(unsafe.Pointer(webrtcName))
-	g.Webrtc = C.gst_bin_get_by_name(GST_BIN(g.pipeline), webrtcName)
+	webrtcNameDesc := C.CString("webrtcbin1")
+	defer C.free(unsafe.Pointer(webrtcNameDesc))
+	g.Webrtc = C.gst_element_factory_make(webrtcName, webrtcNameDesc)
+	g_object_set(C.gpointer(g.Webrtc), "stun-server", unsafe.Pointer(C.CString("stun://stun.l.google.com:19302")))
 
-	//queueAudioName := C.CString("rtpopuspay")
-	//defer C.free(unsafe.Pointer(queueAudioName))
-	//rtpopuspay := C.gst_bin_get_by_name(GST_BIN(g.pipeline), queueAudioName)
+	capsStr := C.CString("application/x-rtp,media=video,encoding-name=H264,clock-rate=90000")
+	defer C.free(unsafe.Pointer(capsStr))
+	var caps *C.GstCaps = C.gst_caps_from_string(capsStr)
 
-	queueVideoName := C.CString("h264parse")
-	defer C.free(unsafe.Pointer(queueVideoName))
-	rtph264pay := C.gst_bin_get_by_name(GST_BIN(g.pipeline), queueVideoName)
+	g_signal_emit_by_name_trans(g.Webrtc, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY, unsafe.Pointer(caps))
 
-	//capsStr := C.CString("application/x-rtp,media=video,encoding-name=H264,clock-rate=90000")
-	//defer C.free(unsafe.Pointer(capsStr))
-	//var caps *C.GstCaps = C.gst_caps_from_string(capsStr)
-	//g_signal_emit_by_name_trans(g.Webrtc, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY, unsafe.Pointer(caps))
+	C.gst_bin_add(GST_BIN(server.pipeline), g.Webrtc)
 
 	var reason C.GstPadLinkReturn
 	srcStr := C.CString("src_%u")
-	sinkStr := C.CString("sink")
+	sinkStr := C.CString("sink_%u")
 	defer func() {
 		C.free(unsafe.Pointer(srcStr))
 		C.free(unsafe.Pointer(sinkStr))
 	}()
-	//tee_audio := C.gst_element_get_request_pad(server.TeeAudio, srcStr)
-	//webrtc_audio := C.gst_element_get_static_pad(rtpopuspay, sinkStr)
-	//reason = C.gst_pad_link(tee_audio, webrtc_audio)
-	//if reason != C.GST_PAD_LINK_OK {
-	//	fmt.Println(strconv.Itoa(int(reason)))
-	//}
-	tee_video := C.gst_element_get_request_pad(server.TeeVideo, srcStr)
-	webrtc_video := C.gst_element_get_static_pad(rtph264pay, sinkStr)
+	tee_audio := C.gst_element_get_request_pad(server.TeeAudio, srcStr)
+	webrtc_audio := C.gst_element_get_request_pad(g.Webrtc, sinkStr)
+	reason = C.gst_pad_link(tee_audio, webrtc_audio)
+	if reason != C.GST_PAD_LINK_OK {
+		fmt.Println(strconv.Itoa(int(reason)))
+	}
+	tee_video := C.gst_element_get_request_pad(server.TeeAudio, srcStr)
+	webrtc_video := C.gst_element_get_request_pad(g.Webrtc, sinkStr)
 	reason = C.gst_pad_link(tee_video, webrtc_video)
 	if reason != C.GST_PAD_LINK_OK {
 		fmt.Println(strconv.Itoa(int(reason)))
 	}
 
+	fmt.Println("LINKED")
+
 	g_signal_connect(unsafe.Pointer(g.Webrtc), "pad-added", C.on_incoming_stream_wrap, unsafe.Pointer(g))
 	g_signal_connect(unsafe.Pointer(g.Webrtc), "on-negotiation-needed", C.on_negotiation_needed_wrap, unsafe.Pointer(g))
 	g_signal_connect(unsafe.Pointer(g.Webrtc), "on-ice-candidate", C.send_ice_candidate_message_wrap, unsafe.Pointer(g))
 
-	g.loadBus()
-	C.gst_element_set_state(g.pipeline, C.GST_STATE_PLAYING)
+	//g.loadBus()
+	C.gst_element_set_state(server.pipeline, C.GST_STATE_PLAYING)
 }

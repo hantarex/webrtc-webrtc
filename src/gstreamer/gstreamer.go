@@ -197,20 +197,20 @@ func (g GStreamer) sendIceCandidate(ice string) {
 func (g GStreamer) ConnectClient(server *GStreamer) (err error) {
 	var reason C.GstPadLinkReturn
 	srcStr := C.CString("src_%u")
-	sinkStr := C.CString("sink")
+	sinkStr := C.CString("sink_%u")
 	defer func() {
 		C.free(unsafe.Pointer(srcStr))
 		C.free(unsafe.Pointer(sinkStr))
 	}()
 	tee_audio := C.gst_element_get_request_pad(server.TeeAudio, srcStr)
-	webrtc_audio := C.gst_element_get_static_pad(g.queue, sinkStr)
+	webrtc_audio := C.gst_element_get_request_pad(g.Webrtc, sinkStr)
 	reason = C.gst_pad_link(tee_audio, webrtc_audio)
 	if reason != C.GST_PAD_LINK_OK {
 		fmt.Println(strconv.Itoa(int(reason)))
 	}
 
 	tee_video := C.gst_element_get_request_pad(server.TeeVideo, srcStr)
-	webrtc_video := C.gst_element_get_static_pad(g.queue1, sinkStr)
+	webrtc_video := C.gst_element_get_request_pad(g.Webrtc, sinkStr)
 	reason = C.gst_pad_link(tee_video, webrtc_video)
 	if reason != C.GST_PAD_LINK_OK {
 		fmt.Println(strconv.Itoa(int(reason)))

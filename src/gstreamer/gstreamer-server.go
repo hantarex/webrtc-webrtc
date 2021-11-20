@@ -13,10 +13,10 @@ import "unsafe"
 func (g *GStreamer) InitGstServer() {
 	C.gst_init(nil, nil)
 	C.gst_debug_set_default_threshold(C.GST_LEVEL_WARNING)
-	pipeStr := C.CString("webrtcbin latency=5000 stun-server=stun://stun.l.google.com:19302 name=webrtcbin message-forward=true webrtcbin. ! " +
-		"rtph264depay request-keyframe=true ! tee name=tee_video tee_video. ! " +
-		"h264parse ! queue2 use-buffering=true ! mux. webrtcbin. ! " +
-		"rtpopusdepay ! tee name=tee_audio tee_audio. ! " +
+	pipeStr := C.CString("webrtcbin latency=5000 stun-server=stun://stun.l.google.com:19302 name=webrtcbin message-forward=true webrtcbin.src_1 ! tee name=tee_video ! " +
+		"rtph264depay request-keyframe=true ! " +
+		"h264parse ! queue2 use-buffering=true ! mux. webrtcbin.src_0 ! tee name=tee_audio ! " +
+		"rtpopusdepay ! " +
 		"opusdec max-errors=-1 ! audioconvert ! avenc_aac ! queue2 use-buffering=true ! mux. flvmux latency=2000 min-upstream-latency=2000 name=mux emit-signals=true streamable=true ! " +
 		"filesink location=test.flv")
 	defer C.free(unsafe.Pointer(pipeStr))

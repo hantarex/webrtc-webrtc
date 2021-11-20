@@ -5003,3 +5003,71 @@ a=fmtp:96 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e015
 2021/10/27 19:28:11 Connected:  [::1]:42590   tcp
 2021/10/27 19:35:31 read: websocket: close 1001 (going away)
 2021/10/27 19:35:31 Connection closed:  [::1]:42590   tcp
+2021/11/20 23:21:23 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:21:23 Server listen :8083
+2021/11/20 23:21:46 read: websocket: close 1001 (going away)
+2021/11/20 23:21:47 read: websocket: close 1001 (going away)
+2021/11/20 23:22:58 read: websocket: close 1001 (going away)
+2021/11/20 23:23:23 read: websocket: close 1001 (going away)
+2021/11/20 23:23:24 read: websocket: close 1001 (going away)
+2021/11/20 23:23:25 read: websocket: close 1001 (going away)
+2021/11/20 23:23:25 read: websocket: close 1001 (going away)
+2021/11/20 23:23:35 read: websocket: close 1001 (going away)
+2021/11/20 23:24:45 read: websocket: close 1001 (going away)
+2021/11/20 23:25:06 read: websocket: close 1001 (going away)
+2021/11/20 23:25:07 read: websocket: close 1001 (going away)
+2021/11/20 23:25:08 read: websocket: close 1001 (going away)
+2021/11/20 23:25:10 read: websocket: close 1001 (going away)
+2021/11/20 23:25:10 read: websocket: close 1001 (going away)
+2021/11/20 23:25:10 read: websocket: close 1001 (going away)
+2021/11/20 23:25:11 read: websocket: close 1001 (going away)
+2021/11/20 23:25:13 read: websocket: close 1001 (going away)
+2021/11/20 23:25:13 read: websocket: close 1001 (going away)
+2021/11/20 23:25:14 read: websocket: close 1001 (going away)
+2021/11/20 23:25:14 read: websocket: close 1001 (going away)
+2021/11/20 23:25:14 read: websocket: close 1001 (going away)
+2021/11/20 23:25:15 read: websocket: close 1001 (going away)
+2021/11/20 23:25:15 read: websocket: close 1001 (going away)
+2021/11/20 23:25:15 read: websocket: close 1001 (going away)
+2021/11/20 23:25:22 read: websocket: close 1001 (going away)
+2021/11/20 23:25:22 read: websocket: close 1001 (going away)
+2021/11/20 23:25:40 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:25:40 Server listen :8083
+2021/11/20 23:26:01 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:26:01 Server listen :8083
+2021/11/20 23:27:00 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:27:00 Server listen :8083
+2021/11/20 23:27:21 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:27:21 Server listen :8083
+2021/11/20 23:28:31 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:28:31 Server listen :8083
+2021/11/20 23:29:43 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:29:43 Server listen :8083
+2021/11/20 23:30:51 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:30:51 Server listen :8083
+2021/11/20 23:32:10 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:32:10 Server listen :8083
+2021/11/20 23:33:40 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:33:40 Server listen :8083
+2021/11/20 23:35:23 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:35:23 Server listen :8083
+2021/11/20 23:37:44 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:37:44 Server listen :8083
+2021/11/20 23:41:25 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:41:25 Server listen :8083
+2021/11/20 23:42:52 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:42:52 Server listen :8083
+2021/11/20 23:43:57 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:43:57 Server listen :8083
+2021/11/20 23:45:41 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:45:41 Server listen :8083
+2021/11/20 23:47:57 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:47:57 Server listen :8083
+2021/11/20 23:48:57 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:48:57 Server listen :8083
+2021/11/20 23:50:23 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:50:23 Server listen :8083
+2021/11/20 23:52:13 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:52:13 Server listen :8083
+2021/11/20 23:52:59 WS_PORT = 8083. RTMP_DST = rtmp://127.0.0.1:1939
+2021/11/20 23:52:59 Server listen :8083
