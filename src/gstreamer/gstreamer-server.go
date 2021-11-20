@@ -14,17 +14,25 @@ func (g *GStreamer) InitGstServer() {
 	C.gst_init(nil, nil)
 	C.gst_debug_set_default_threshold(C.GST_LEVEL_WARNING)
 	pipeStr := C.CString("webrtcbin latency=5000 stun-server=stun://stun.l.google.com:19302 name=webrtcbin message-forward=true webrtcbin. ! " +
-		"rtph264depay request-keyframe=true ! " +
+		"rtph264depay request-keyframe=true ! tee name=tee_video tee_video. ! " +
 		"h264parse ! queue2 use-buffering=true ! mux. webrtcbin. ! " +
-		"rtpopusdepay ! " +
+		"rtpopusdepay ! tee name=tee_audio tee_audio. ! " +
 		"opusdec max-errors=-1 ! audioconvert ! avenc_aac ! queue2 use-buffering=true ! mux. flvmux latency=2000 min-upstream-latency=2000 name=mux emit-signals=true streamable=true ! " +
 		"filesink location=test.flv")
 	defer C.free(unsafe.Pointer(pipeStr))
-	g.pipeline = C.gst_parse_launch(pipeStr, &g.gError)
+	g.pipeline = C.gst_parse_launch(pipeStr, &g.GError)
 
 	webrtcName := C.CString("webrtcbin")
 	defer C.free(unsafe.Pointer(webrtcName))
-	g.Webrtc = C.gst_bin_get_by_name(GST_BIN(g.pipeline), C.CString("webrtcbin"))
+	g.Webrtc = C.gst_bin_get_by_name(GST_BIN(g.pipeline), webrtcName)
+
+	teeAudio := C.CString("tee_audio")
+	defer C.free(unsafe.Pointer(teeAudio))
+	g.TeeAudio = C.gst_bin_get_by_name(GST_BIN(g.pipeline), teeAudio)
+
+	teeVideo := C.CString("tee_video")
+	defer C.free(unsafe.Pointer(teeVideo))
+	g.TeeVideo = C.gst_bin_get_by_name(GST_BIN(g.pipeline), teeVideo)
 
 	g_signal_connect(unsafe.Pointer(g.Webrtc), "pad-added", C.on_incoming_stream_wrap, unsafe.Pointer(g))
 

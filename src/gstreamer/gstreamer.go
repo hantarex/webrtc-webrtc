@@ -29,8 +29,9 @@ type PassWebrtc struct {
 }
 
 type GStreamer struct {
-	Webrtc, pipeline, videotestsrc, teeVideo, nvh264enc, rtph264pay, queue, h264parse, queue1, autovideosink *C.GstElement
-	gError                                                                                                   *C.GError
+	Webrtc, pipeline, videotestsrc, nvh264enc, rtph264pay, queue, h264parse, TeeAudio, TeeVideo,
+	queue1, autovideosink *C.GstElement
+	GError *C.GError
 	//send_channel *C.GObject
 	bus *C.GstBus
 	//loop         *C.GMainLoop
@@ -89,6 +90,7 @@ type Message struct {
 	Candidate IceCandidate `json:"candidate,omitempty"`
 	Id        string       `json:"id,omitempty"`
 	Key       string       `json:"key,omitempty"`
+	Desc      string       `json:"desc,omitempty"`
 }
 
 func (g *GStreamer) loadBus() {
@@ -190,6 +192,30 @@ func (g GStreamer) sendIceCandidate(ice string) {
 	if err != nil {
 		log.Println("iceCandidate:", err)
 	}
+}
+
+func (g GStreamer) ConnectClient(server *GStreamer) (err error) {
+	var reason C.GstPadLinkReturn
+	srcStr := C.CString("src_%u")
+	sinkStr := C.CString("sink")
+	defer func() {
+		C.free(unsafe.Pointer(srcStr))
+		C.free(unsafe.Pointer(sinkStr))
+	}()
+	tee_audio := C.gst_element_get_request_pad(server.TeeAudio, srcStr)
+	webrtc_audio := C.gst_element_get_static_pad(g.queue, sinkStr)
+	reason = C.gst_pad_link(tee_audio, webrtc_audio)
+	if reason != C.GST_PAD_LINK_OK {
+		fmt.Println(strconv.Itoa(int(reason)))
+	}
+
+	tee_video := C.gst_element_get_request_pad(server.TeeVideo, srcStr)
+	webrtc_video := C.gst_element_get_static_pad(g.queue1, sinkStr)
+	reason = C.gst_pad_link(tee_video, webrtc_video)
+	if reason != C.GST_PAD_LINK_OK {
+		fmt.Println(strconv.Itoa(int(reason)))
+	}
+	return
 }
 
 func (g *GStreamer) On_offer_received(msg Message, dst *C.GstElement, ws WsStore) (err error) {

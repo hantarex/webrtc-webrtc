@@ -3,6 +3,7 @@ package websocket
 import "C"
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 	"time"
@@ -18,7 +19,7 @@ var Users map[string]Connections
 
 type WebSocket struct {
 	*websocket.Conn
-	gstreamer.GStreamer
+	*gstreamer.GStreamer
 	Errs chan string
 }
 
@@ -39,7 +40,7 @@ func (self *WebSocket) ReadMessages() {
 	case "type":
 		switch msg.Key {
 		case "client":
-			go self.readMessagesClient()
+			go self.readMessagesClient(msg)
 			break
 		case "server":
 			go self.readMessagesServer()
@@ -56,8 +57,17 @@ func (self *WebSocket) ReadMessages() {
 	}
 }
 
-func (self *WebSocket) readMessagesClient() {
-	self.InitGstClient()
+func (self *WebSocket) readMessagesClient(msg gstreamer.Message) {
+	server, ok := Users[msg.Desc]
+	if !ok {
+		fmt.Println("ERRROR")
+	}
+	self.InitGstClient(server.server.GStreamer)
+	go func() {
+		time.Sleep(time.Second * 2)
+		self.GStreamer.ConnectClient(server.server.GStreamer)
+	}()
+
 	for {
 		var msg gstreamer.Message
 		_, message, err := self.ReadMessage()
