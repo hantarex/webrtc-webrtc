@@ -19,6 +19,10 @@ import (
 	"unsafe"
 )
 
+type WsStore interface {
+	AddServerUser(key string) (err error)
+}
+
 type PassWebrtc struct {
 	g      *GStreamer
 	webrtc *C.GstElement
@@ -188,12 +192,14 @@ func (g GStreamer) sendIceCandidate(ice string) {
 	}
 }
 
-func (g *GStreamer) On_offer_received(msg Message, dst *C.GstElement) (err error) {
+func (g *GStreamer) On_offer_received(msg Message, dst *C.GstElement, ws WsStore) (err error) {
 	fmt.Println("on_offer_received")
 	if msg.Key == "" {
 		err = errors.New("key of stream does not exists")
 	}
+
 	g.setRTMPKey(msg.Key)
+	ws.AddServerUser(msg.Key)
 
 	var sdp *C.GstSDPMessage
 	C.gst_sdp_message_new(&sdp)
@@ -247,10 +253,11 @@ func (g *GStreamer) IceCandidateReceived(msg Message, webrtc *C.GstElement) {
 	g_signal_emit_by_name_recv(webrtc, "add-ice-candidate", msg.Candidate.SdpMLineIndex, unsafe.Pointer(C.gchararray(canStr)), nil)
 }
 
-func (g *GStreamer) setRTMPKey(key string) {
+func (g *GStreamer) setRTMPKey(key string) (err error) {
 	g.RtmpKey = key
 	g.ret = C.gst_element_set_state(g.pipeline, C.GST_STATE_PLAYING)
 	if g.ret == C.GST_STATE_CHANGE_FAILURE {
-		fmt.Println("Unable to set the pipeline to the playing state (check the bus for error messages).")
+		err = errors.New("Unable to set the pipeline to the playing state (check the bus for error messages).")
 	}
+	return
 }

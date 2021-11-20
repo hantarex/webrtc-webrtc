@@ -50,6 +50,7 @@ func main() {
 		useRTMP = rtmp
 	}
 	log.Println("WS_PORT = " + useAddr + ". RTMP_DST = " + useRTMP)
+	websocket2.Users = make(map[string]websocket2.Connections)
 	http.HandleFunc("/ws", ws)
 	log.Printf("Server listen %s\n", ":"+useAddr)
 	if err := http.ListenAndServe(":"+useAddr, nil); err != nil {

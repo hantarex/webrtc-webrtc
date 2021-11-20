@@ -1,5 +1,6 @@
 package websocket
 
+import "C"
 import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
@@ -7,6 +8,13 @@ import (
 	"time"
 	"webrtc-webrtc/gstreamer"
 )
+
+type Connections struct {
+	server  *WebSocket
+	clients []*WebSocket
+}
+
+var Users map[string]Connections
 
 type WebSocket struct {
 	*websocket.Conn
@@ -95,7 +103,7 @@ func (self *WebSocket) readMessagesServer() {
 		}
 		switch msg.Id {
 		case "start":
-			if err := self.GStreamer.On_offer_received(msg, self.GStreamer.Webrtc); err != nil {
+			if err := self.GStreamer.On_offer_received(msg, self.GStreamer.Webrtc, self); err != nil {
 				log.Println(err.Error())
 			}
 			break
@@ -112,6 +120,14 @@ func (self *WebSocket) readMessagesServer() {
 			log.Println("Error readMessages")
 		}
 	}
+}
+
+func (self *WebSocket) AddServerUser(key string) (err error) {
+	Users[key] = Connections{
+		server:  self,
+		clients: make([]*WebSocket, 0),
+	}
+	return
 }
 
 func (self *WebSocket) Ping() {
