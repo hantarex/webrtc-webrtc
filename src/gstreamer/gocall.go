@@ -6,9 +6,7 @@ package gstreamer
 */
 import "C"
 import (
-	"context"
 	"fmt"
-	"time"
 	"unsafe"
 )
 
@@ -29,15 +27,14 @@ func on_negotiation_needed(webrtc *C.GstElement, user_data unsafe.Pointer) {
 
 //export on_offer_set
 func on_offer_set(promise *C.GstPromise, user_data unsafe.Pointer) {
-	//g := (*PassWebrtc)(user_data)
 	C.gst_promise_unref(promise)
 	//var transceiver *C.GstWebRTCRTPTransceiver
 	//transceiver = C.g_array_index_zero(g.g.Webrtc)
 	//fmt.Println(transceiver)
 	//C.g_array_index_zero(g.g.Webrtc)
 
-	//promise = C.gst_promise_new_with_change_func(C.GCallback(C.on_answer_created_wrap), C.gpointer(user_data), nil)
-	//g_signal_emit_by_name((*PassWebrtc)(user_data).webrtc, "create-answer", nil, unsafe.Pointer(promise), nil)
+	promise = C.gst_promise_new_with_change_func(C.GCallback(C.on_answer_created_wrap), C.gpointer(user_data), nil)
+	g_signal_emit_by_name((*PassWebrtc)(user_data).webrtc, "create-answer", nil, unsafe.Pointer(promise), nil)
 
 }
 
@@ -105,61 +102,12 @@ func g_object_int(object C.gpointer, f1 string, f2 int) {
 
 //export on_incoming_stream
 func on_incoming_stream(webrtc *C.GstElement, pad *C.GstPad, user_data unsafe.Pointer) {
-	fmt.Println("on_incoming_stream " + C.GoString(webrtc.object.name))
-	g := (*GStreamer)(user_data)
-	sinkName := C.CString("sink")
-	defer C.free(unsafe.Pointer(sinkName))
-	srcName := C.CString("src_%u")
-	defer C.free(unsafe.Pointer(srcName))
-	fmt.Println("get caps")
 	new_pad_caps := C.gst_pad_get_current_caps(pad)
-	fmt.Println(new_pad_caps)
-	if new_pad_caps == nil {
-		//fmt.Println("Load webrtc client")
-		//fmt.Println(pad.direction)
-		//fmt.Println(C.GoString(C.gst_caps_to_string(C.gst_pad_template_get_caps(C.gst_pad_get_pad_template(pad)))))
-		////C.gst_element_link(g.queue, g.rtph264depay)
-		//srcpad := C.gst_element_get_static_pad(g.rtph264pay, C.CString("src"))
-		////sinkpad := C.gst_element_get_request_pad(g.Webrtc, C.CString("sink_%u"))
-		////fmt.Println("sinkpad")
-		////fmt.Println(sinkpad)
-		//reason := C.gst_pad_link(srcpad, pad)
-		//if reason != C.GST_PAD_LINK_OK {
-		//	fmt.Println(errors.New(strconv.Itoa(int(reason))).Error())
-		//}
-
-		fmt.Println("LINK!!!!!!!!!")
-		return
-	}
 	new_pad_struct := C.gst_caps_get_structure(new_pad_caps, 0)
 	media := C.CString("media")
 	defer C.free(unsafe.Pointer(media))
 	typePad := C.GoString(C.gst_structure_get_string(new_pad_struct, media))
-	//fmt.Println(C.GoString(C.gst_structure_serialize(new_pad_struct, C.GST_SERIALIZE_FLAG_NONE)))
-	//fmt.Println(C.GoString(C.gst_structure_get_string(new_pad_struct, C.CString("media"))))
-	fmt.Println(typePad)
-	if typePad == "video" {
-		fmt.Println("receive pad " + typePad)
-		go func(ctx context.Context) {
-			for {
-				select {
-				case <-ctx.Done():
-					return
-				case <-time.After(time.Second * 2):
-				}
-				C.sendKeyFrame(pad)
-			}
-
-		}(g.ctx)
-		sinkpad := C.gst_element_get_static_pad(g.teeVideo, sinkName)
-		defer C.gst_object_unref(C.gpointer(sinkpad))
-		if C.gst_pad_is_linked(sinkpad) == 1 {
-			fmt.Println("We are already linked. Ignoring.\n")
-			return
-		}
-		C.gst_pad_link(pad, sinkpad)
-	}
-
+	fmt.Println("receive pad " + typePad)
 }
 
 //export send_ice_candidate_message

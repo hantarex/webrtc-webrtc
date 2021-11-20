@@ -26,16 +26,20 @@ func (g *GStreamer) InitGstServer() {
 	defer C.free(unsafe.Pointer(webrtcName))
 	g.Webrtc = C.gst_bin_get_by_name(GST_BIN(g.pipeline), C.CString("webrtcbin"))
 
-	//capsStr := C.CString("application/x-rtp,media=video,encoding-name=H264,clock-rate=90000")
-	//defer C.free(unsafe.Pointer(capsStr))
-	//var caps *C.GstCaps = C.gst_caps_from_string(capsStr)
-	//
-	//g_signal_emit_by_name_trans(g.Webrtc, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_RECVONLY, unsafe.Pointer(caps))
-
 	g_signal_connect(unsafe.Pointer(g.Webrtc), "pad-added", C.on_incoming_stream_wrap, unsafe.Pointer(g))
 
-	g_signal_connect(unsafe.Pointer(g.Webrtc), "on-negotiation-needed", C.on_negotiation_needed_wrap, unsafe.Pointer(g))
+	//g_signal_connect(unsafe.Pointer(g.webrtc), "on-negotiation-needed", C.on_negotiation_needed_wrap, unsafe.Pointer(g))
 	g_signal_connect(unsafe.Pointer(g.Webrtc), "on-ice-candidate", C.send_ice_candidate_message_wrap, unsafe.Pointer(g))
+
+	//C.gst_element_set_state(g.pipeline, C.GST_STATE_READY)
+
+	//g_signal_emit_by_name(g.webrtc, "create-data-channel", unsafe.Pointer(C.CString("channel")), nil, unsafe.Pointer(&g.send_channel))
+	//g_signal_emit_by_name(g.webrtc, "add-local-ip-address", unsafe.Pointer(C.CString("127.0.0.1")), nil, nil)
+
+	capsStr := C.CString("application/x-rtp,media=video,encoding-name=H264,clock-rate=90000")
+	defer C.free(unsafe.Pointer(capsStr))
+	var caps *C.GstCaps = C.gst_caps_from_string(capsStr)
+	g_signal_emit_by_name_trans(g.Webrtc, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_RECVONLY, unsafe.Pointer(caps))
 
 	g.loadBus()
 	C.gst_element_set_state(g.pipeline, C.GST_STATE_PLAYING)

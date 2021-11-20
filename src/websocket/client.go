@@ -94,12 +94,17 @@ func (self *WebSocket) readMessagesServer() {
 			self.Conn.Close()
 		}
 		switch msg.Id {
+		case "start":
+			if err := self.GStreamer.On_offer_received(msg, self.GStreamer.Webrtc); err != nil {
+				log.Println(err.Error())
+			}
+			break
 		case "client_answer":
 			if err := self.GStreamer.On_answer_received(msg, self.GStreamer.Webrtc); err != nil {
 				log.Println(err.Error())
 			}
 			break
-		case "onIceCandidateClient":
+		case "onIceCandidate":
 			self.GStreamer.IceCandidateReceived(msg, self.GStreamer.Webrtc)
 			break
 		default:
