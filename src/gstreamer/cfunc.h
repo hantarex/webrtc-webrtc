@@ -14,6 +14,7 @@ gboolean bus_call (GstBus *bus, GstMessage *msg, void *data);
 void on_negotiation_needed_wrap (GstElement * webrtc, gpointer user_data);
 void on_offer_created_wrap (GstPromise *promise, GstElement *webrtc);
 void on_offer_set_wrap (GstPromise * promise, gpointer user_data);
+void on_offer_set_client_wrap (GstPromise * promise, gpointer user_data);
 void on_answer_created_wrap (GstPromise * promise, gpointer user_data);
 gboolean bus_call_wrap (GstBus *bus, GstMessage *msg, void *data);
 void send_ice_candidate_message_wrap (GstElement * webrtc G_GNUC_UNUSED, guint mlineindex, gchar * candidate, gpointer user_data G_GNUC_UNUSED);

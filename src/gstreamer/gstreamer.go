@@ -192,7 +192,7 @@ func (g GStreamer) sendIceCandidate(ice string) {
 	}
 }
 
-func (g *GStreamer) On_offer_received(msg Message, dst *C.GstElement, ws WsStore, noAnswer bool) (err error) {
+func (g *GStreamer) On_offer_received(msg Message, dst *C.GstElement, ws WsStore) (err error) {
 	fmt.Println("on_offer_received")
 	if msg.Key == "" {
 		err = errors.New("key of stream does not exists")
@@ -219,7 +219,7 @@ func (g *GStreamer) On_offer_received(msg Message, dst *C.GstElement, ws WsStore
 	return
 }
 
-func (g *GStreamer) On_answer_received(msg Message, dst *C.GstElement) (err error) {
+func (g *GStreamer) On_answer_received(msg Message, dst *C.GstElement, noAnswer bool) (err error) {
 	fmt.Println("On_answer_received")
 	fmt.Println(msg)
 
@@ -232,11 +232,19 @@ func (g *GStreamer) On_answer_received(msg Message, dst *C.GstElement) (err erro
 	var offer *C.GstWebRTCSessionDescription
 	var promise *C.GstPromise
 	//
-	offer = C.gst_webrtc_session_description_new(C.GST_WEBRTC_SDP_TYPE_ANSWER, sdp)
-	promise = C.gst_promise_new_with_change_func(C.GCallback(C.on_offer_set_wrap), C.gpointer(&PassWebrtc{
-		g:      g,
-		webrtc: dst,
-	}), nil)
+	if noAnswer {
+		offer = C.gst_webrtc_session_description_new(C.GST_WEBRTC_SDP_TYPE_ANSWER, sdp)
+		promise = C.gst_promise_new_with_change_func(C.GCallback(C.on_offer_set_client_wrap), C.gpointer(&PassWebrtc{
+			g:      g,
+			webrtc: dst,
+		}), nil)
+	} else {
+		offer = C.gst_webrtc_session_description_new(C.GST_WEBRTC_SDP_TYPE_ANSWER, sdp)
+		promise = C.gst_promise_new_with_change_func(C.GCallback(C.on_offer_set_wrap), C.gpointer(&PassWebrtc{
+			g:      g,
+			webrtc: dst,
+		}), nil)
+	}
 	g_signal_emit_by_name_offer_remote(dst, "set-remote-description", offer, promise)
 	return
 }

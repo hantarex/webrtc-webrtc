@@ -80,6 +80,12 @@ void on_offer_set_wrap(GstPromise * webrtc, void* user_data)
     on_offer_set(webrtc, user_data);
 }
 
+extern void on_offer_set_client (GstPromise * webrtc, void* user_data);
+void on_offer_set_client_wrap(GstPromise * webrtc, void* user_data)
+{
+    on_offer_set_client(webrtc, user_data);
+}
+
 extern void on_offer_created (GstPromise * webrtc, void * user_data);
 void on_offer_created_wrap (GstPromise *promise, void *user_data)
 {

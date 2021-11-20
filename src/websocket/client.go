@@ -73,7 +73,7 @@ func (self *WebSocket) readMessagesClient() {
 		}
 		switch msg.Id {
 		case "client_answer":
-			if err := self.GStreamer.On_answer_received(msg, self.GStreamer.Webrtc); err != nil {
+			if err := self.GStreamer.On_answer_received(msg, self.GStreamer.Webrtc, true); err != nil {
 				log.Println(err.Error())
 			}
 			break
@@ -109,7 +109,7 @@ func (self *WebSocket) readMessagesServer() {
 			}
 			break
 		case "client_answer":
-			if err := self.GStreamer.On_answer_received(msg, self.GStreamer.Webrtc); err != nil {
+			if err := self.GStreamer.On_answer_received(msg, self.GStreamer.Webrtc, false); err != nil {
 				log.Println(err.Error())
 			}
 			break

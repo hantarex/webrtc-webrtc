@@ -38,6 +38,11 @@ func on_offer_set(promise *C.GstPromise, user_data unsafe.Pointer) {
 
 }
 
+//export on_offer_set_client
+func on_offer_set_client(promise *C.GstPromise, user_data unsafe.Pointer) {
+	C.gst_promise_unref(promise)
+}
+
 //export on_answer_created
 func on_answer_created(promise *C.GstPromise, user_data unsafe.Pointer) {
 	fmt.Println("on_answer_created")
