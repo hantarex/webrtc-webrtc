@@ -192,7 +192,7 @@ func (g GStreamer) sendIceCandidate(ice string) {
 	}
 }
 
-func (g *GStreamer) On_offer_received(msg Message, dst *C.GstElement, ws WsStore) (err error) {
+func (g *GStreamer) On_offer_received(msg Message, dst *C.GstElement, ws WsStore, noAnswer bool) (err error) {
 	fmt.Println("on_offer_received")
 	if msg.Key == "" {
 		err = errors.New("key of stream does not exists")

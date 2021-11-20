@@ -96,24 +96,10 @@
 		});
 
 		socket.onopen = async () => {
-            //Play it
-            // addVideoForStream(stream,true);
-            // we add stream later 
-            // pc.addStream(stream);
-            //Create new offer
-            // const offer = await pc.createOffer({
-			// 	offerToReceiveAudio: false,
-			// 	offerToReceiveVideo: true,
-			// });
-            // //Set it
-            // pc.setLocalDescription(offer);
-            //
-            // console.log("offer ==== ",offer.sdp);
-            // socket.send(JSON.stringify({
-            //     id: 'client_start',
-			// 	sdpOffer: offer.sdp,
-			// 	key: 'c22839d94fee8e79f9831de63916bbf2372b378168af9a31e45d5cd8edf23a56'
-            // }));
+			socket.send(JSON.stringify({
+				id: 'type',
+				key: 'client'
+			}));
         };
 
         socket.onmessage  = async (event) =>{

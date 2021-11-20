@@ -57,6 +57,7 @@ func (self *WebSocket) ReadMessages() {
 }
 
 func (self *WebSocket) readMessagesClient() {
+	self.InitGstClient()
 	for {
 		var msg gstreamer.Message
 		_, message, err := self.ReadMessage()
