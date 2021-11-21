@@ -15,14 +15,12 @@ import (
 )
 
 func (g *GStreamer) InitGstClient(server *GStreamer) {
-	C.gst_element_set_state(server.pipeline, C.GST_STATE_PAUSED)
 	webrtcName := C.CString("webrtcbin")
 	defer C.free(unsafe.Pointer(webrtcName))
-	webrtcNameDesc := C.CString("webrtcbin1")
-	defer C.free(unsafe.Pointer(webrtcNameDesc))
-	g.Webrtc = C.gst_element_factory_make(webrtcName, webrtcNameDesc)
+	g.Webrtc = C.gst_element_factory_make(webrtcName, nil)
 	g_object_set(C.gpointer(g.Webrtc), "stun-server", unsafe.Pointer(C.CString("stun://stun.l.google.com:19302")))
-
+	g_signal_connect(unsafe.Pointer(g.Webrtc), "on-negotiation-needed", C.on_negotiation_needed_wrap, unsafe.Pointer(g))
+	g_signal_connect(unsafe.Pointer(g.Webrtc), "on-ice-candidate", C.send_ice_candidate_message_wrap, unsafe.Pointer(g))
 	//capsStr := C.CString("application/x-rtp,media=video,encoding-name=H264,clock-rate=90000")
 	//defer C.free(unsafe.Pointer(capsStr))
 	//var caps *C.GstCaps = C.gst_caps_from_string(capsStr)
@@ -31,10 +29,6 @@ func (g *GStreamer) InitGstClient(server *GStreamer) {
 
 	C.gst_bin_add(GST_BIN(server.pipeline), g.Webrtc)
 
-	g_signal_connect(unsafe.Pointer(g.Webrtc), "pad-added", C.on_incoming_stream_wrap, unsafe.Pointer(g))
-	g_signal_connect(unsafe.Pointer(g.Webrtc), "on-negotiation-needed", C.on_negotiation_needed_wrap, unsafe.Pointer(g))
-	g_signal_connect(unsafe.Pointer(g.Webrtc), "on-ice-candidate", C.send_ice_candidate_message_wrap, unsafe.Pointer(g))
-
 	var reason C.GstPadLinkReturn
 	srcStr := C.CString("src_%u")
 	sinkStr := C.CString("sink_%u")
@@ -42,34 +36,35 @@ func (g *GStreamer) InitGstClient(server *GStreamer) {
 		C.free(unsafe.Pointer(srcStr))
 		C.free(unsafe.Pointer(sinkStr))
 	}()
-	var (
-		new_pad_caps   *C.GstCaps
-		new_pad_struct *C.GstStructure
-		typePad        string
-	)
+	//var (
+	//	new_pad_caps   *C.GstCaps
+	//	new_pad_struct *C.GstStructure
+	//	typePad        string
+	//)
+	C.gst_element_set_state(g.Webrtc, C.GST_STATE_PAUSED)
 
 	tee_audio := C.gst_element_get_request_pad(server.TeeAudio, srcStr)
-	new_pad_caps = C.gst_pad_get_current_caps(tee_audio)
-	new_pad_struct = C.gst_caps_get_structure(new_pad_caps, 0)
-	typePad = C.GoString(C.gst_structure_serialize(new_pad_struct, 0))
-	fmt.Println("audio pad " + typePad)
+	//new_pad_caps = C.gst_pad_get_current_caps(tee_audio)
+	//new_pad_struct = C.gst_caps_get_structure(new_pad_caps, 0)
+	//typePad = C.GoString(C.gst_structure_serialize(new_pad_struct, 0))
+	//fmt.Println("audio pad " + typePad)
 	webrtc_audio := C.gst_element_get_request_pad(g.Webrtc, sinkStr)
 	reason = C.gst_pad_link(tee_audio, webrtc_audio)
 	if reason != C.GST_PAD_LINK_OK {
 		fmt.Println(strconv.Itoa(int(reason)))
 	}
 	tee_video := C.gst_element_get_request_pad(server.TeeVideo, srcStr)
-	new_pad_caps = C.gst_pad_get_current_caps(tee_video)
-	new_pad_struct = C.gst_caps_get_structure(new_pad_caps, 0)
-	typePad = C.GoString(C.gst_structure_serialize(new_pad_struct, 0))
-	fmt.Println("audio pad " + typePad)
+	//new_pad_caps = C.gst_pad_get_current_caps(tee_video)
+	//new_pad_struct = C.gst_caps_get_structure(new_pad_caps, 0)
+	//typePad = C.GoString(C.gst_structure_serialize(new_pad_struct, 0))
+	//fmt.Println("audio pad " + typePad)
 	webrtc_video := C.gst_element_get_request_pad(g.Webrtc, sinkStr)
 	reason = C.gst_pad_link(tee_video, webrtc_video)
 	if reason != C.GST_PAD_LINK_OK {
 		fmt.Println(strconv.Itoa(int(reason)))
 	}
+	C.gst_element_set_state(g.Webrtc, C.GST_STATE_PLAYING)
 
 	fmt.Println("LINKED")
 
-	C.gst_element_set_state(server.pipeline, C.GST_STATE_PLAYING)
 }
