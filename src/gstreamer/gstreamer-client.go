@@ -31,6 +31,10 @@ func (g *GStreamer) InitGstClient(server *GStreamer) {
 
 	C.gst_bin_add(GST_BIN(server.pipeline), g.Webrtc)
 
+	g_signal_connect(unsafe.Pointer(g.Webrtc), "pad-added", C.on_incoming_stream_wrap, unsafe.Pointer(g))
+	g_signal_connect(unsafe.Pointer(g.Webrtc), "on-negotiation-needed", C.on_negotiation_needed_wrap, unsafe.Pointer(g))
+	g_signal_connect(unsafe.Pointer(g.Webrtc), "on-ice-candidate", C.send_ice_candidate_message_wrap, unsafe.Pointer(g))
+
 	var reason C.GstPadLinkReturn
 	srcStr := C.CString("src_%u")
 	sinkStr := C.CString("sink_%u")
@@ -53,10 +57,5 @@ func (g *GStreamer) InitGstClient(server *GStreamer) {
 
 	fmt.Println("LINKED")
 
-	g_signal_connect(unsafe.Pointer(g.Webrtc), "pad-added", C.on_incoming_stream_wrap, unsafe.Pointer(g))
-	g_signal_connect(unsafe.Pointer(g.Webrtc), "on-negotiation-needed", C.on_negotiation_needed_wrap, unsafe.Pointer(g))
-	g_signal_connect(unsafe.Pointer(g.Webrtc), "on-ice-candidate", C.send_ice_candidate_message_wrap, unsafe.Pointer(g))
-
-	//g.loadBus()
 	C.gst_element_set_state(server.pipeline, C.GST_STATE_PLAYING)
 }
