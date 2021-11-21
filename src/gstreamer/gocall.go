@@ -107,11 +107,12 @@ func g_object_int(object C.gpointer, f1 string, f2 int) {
 
 //export on_incoming_stream
 func on_incoming_stream(webrtc *C.GstElement, pad *C.GstPad, user_data unsafe.Pointer) {
+	//fmt.Println(pad)
 	new_pad_caps := C.gst_pad_get_current_caps(pad)
 	new_pad_struct := C.gst_caps_get_structure(new_pad_caps, 0)
 	media := C.CString("media")
 	defer C.free(unsafe.Pointer(media))
-	typePad := C.GoString(C.gst_structure_get_string(new_pad_struct, media))
+	typePad := C.GoString(C.gst_structure_serialize(new_pad_struct, 0))
 	fmt.Println("receive pad " + typePad)
 }
 

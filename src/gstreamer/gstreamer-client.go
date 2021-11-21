@@ -23,11 +23,11 @@ func (g *GStreamer) InitGstClient(server *GStreamer) {
 	g.Webrtc = C.gst_element_factory_make(webrtcName, webrtcNameDesc)
 	g_object_set(C.gpointer(g.Webrtc), "stun-server", unsafe.Pointer(C.CString("stun://stun.l.google.com:19302")))
 
-	capsStr := C.CString("application/x-rtp,media=video,encoding-name=H264,clock-rate=90000")
-	defer C.free(unsafe.Pointer(capsStr))
-	var caps *C.GstCaps = C.gst_caps_from_string(capsStr)
-
-	g_signal_emit_by_name_trans(g.Webrtc, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY, unsafe.Pointer(caps))
+	//capsStr := C.CString("application/x-rtp,media=video,encoding-name=H264,clock-rate=90000")
+	//defer C.free(unsafe.Pointer(capsStr))
+	//var caps *C.GstCaps = C.gst_caps_from_string(capsStr)
+	//
+	//g_signal_emit_by_name_trans(g.Webrtc, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY, unsafe.Pointer(caps))
 
 	C.gst_bin_add(GST_BIN(server.pipeline), g.Webrtc)
 
@@ -42,13 +42,27 @@ func (g *GStreamer) InitGstClient(server *GStreamer) {
 		C.free(unsafe.Pointer(srcStr))
 		C.free(unsafe.Pointer(sinkStr))
 	}()
+	var (
+		new_pad_caps   *C.GstCaps
+		new_pad_struct *C.GstStructure
+		typePad        string
+	)
+
 	tee_audio := C.gst_element_get_request_pad(server.TeeAudio, srcStr)
+	new_pad_caps = C.gst_pad_get_current_caps(tee_audio)
+	new_pad_struct = C.gst_caps_get_structure(new_pad_caps, 0)
+	typePad = C.GoString(C.gst_structure_serialize(new_pad_struct, 0))
+	fmt.Println("audio pad " + typePad)
 	webrtc_audio := C.gst_element_get_request_pad(g.Webrtc, sinkStr)
 	reason = C.gst_pad_link(tee_audio, webrtc_audio)
 	if reason != C.GST_PAD_LINK_OK {
 		fmt.Println(strconv.Itoa(int(reason)))
 	}
-	tee_video := C.gst_element_get_request_pad(server.TeeAudio, srcStr)
+	tee_video := C.gst_element_get_request_pad(server.TeeVideo, srcStr)
+	new_pad_caps = C.gst_pad_get_current_caps(tee_video)
+	new_pad_struct = C.gst_caps_get_structure(new_pad_caps, 0)
+	typePad = C.GoString(C.gst_structure_serialize(new_pad_struct, 0))
+	fmt.Println("audio pad " + typePad)
 	webrtc_video := C.gst_element_get_request_pad(g.Webrtc, sinkStr)
 	reason = C.gst_pad_link(tee_video, webrtc_video)
 	if reason != C.GST_PAD_LINK_OK {
