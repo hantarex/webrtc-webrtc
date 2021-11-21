@@ -40,7 +40,7 @@ func (g *GStreamer) InitGstServer() {
 	//g_signal_emit_by_name(g.webrtc, "create-data-channel", unsafe.Pointer(C.CString("channel")), nil, unsafe.Pointer(&g.send_channel))
 	//g_signal_emit_by_name(g.webrtc, "add-local-ip-address", unsafe.Pointer(C.CString("127.0.0.1")), nil, nil)
 
-	capsStr := C.CString("application/x-rtp,media=video,encoding-name=H264,clock-rate=90000")
+	capsStr := C.CString("application/x-rtp,media=video,encoding-name=VP8,clock-rate=90000")
 	defer C.free(unsafe.Pointer(capsStr))
 	var caps *C.GstCaps = C.gst_caps_from_string(capsStr)
 	g_signal_emit_by_name_trans(g.Webrtc, "add-transceiver", C.GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_RECVONLY, unsafe.Pointer(caps))
